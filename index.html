@@ -307,9 +307,6 @@
       touch-action: none;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
     }
-    .play-area.chaos {
-      overflow: visible;
-    }
     .stain {
       position: absolute;
       left: 50%;
@@ -576,7 +573,6 @@
         ? `blur(${Math.min(13, smearCount * 0.22)}px) saturate(1.28)`
         : `blur(${Math.max(0, dirt < 20 ? 1.2 : 0)}px)`;
       meter.classList.toggle("chaos", usingHand && dirt > 100);
-      playArea.classList.toggle("chaos", usingHand && dirt > 100);
       meterFill.style.width = visibleDirt + "%";
       meterFill.style.background = dirt > 100
         ? "linear-gradient(90deg, #6a3415, #8f4517 55%, #c05f1f)"
