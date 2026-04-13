@@ -155,6 +155,12 @@
       cursor: pointer;
       transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
     }
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      transform: none;
+      box-shadow: none;
+    }
     button:hover {
       transform: translateY(-1px);
       box-shadow: 0 16px 28px rgba(91, 47, 133, 0.18);
@@ -169,6 +175,35 @@
       background: #fff;
       color: #5f3377;
       border: 1px solid rgba(157, 78, 221, 0.16);
+    }
+    .toggle-no {
+      background: linear-gradient(180deg, #d9534f, #a92b2b);
+      color: white;
+    }
+    .toggle-yes {
+      background: linear-gradient(180deg, #47b36b, #218a45);
+      color: white;
+    }
+    .intro-actions {
+      position: relative;
+      grid-template-columns: repeat(2, minmax(180px, max-content));
+      align-items: stretch;
+      overflow: hidden;
+    }
+    .intro-actions button {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.35s ease, opacity 0.35s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, min-width 0.35s ease;
+    }
+    .intro-actions.no-active {
+      grid-template-columns: 0fr minmax(180px, max-content);
+    }
+    .intro-actions.no-active #goToPoop {
+      opacity: 0;
+      transform: translateX(-120px) scale(0.92);
+      pointer-events: none;
     }
     /* noinspection CssUnusedSymbol */
     .danger {
@@ -510,13 +545,14 @@
           <div class="badge" style="width:max-content;">Special Toilet Operations</div>
           <h2>Uh oh stinky.....<br>Oliver wants to go to the toilet 🚽</h2>
           <p class="sub">Should we send him to the toilet?</p>
-          <div class="btns">
+          <div class="btns intro-actions" id="introActions">
             <button class="primary" id="goToPoop">Go Poop</button>
+            <button class="toggle-no" id="sayNoBtn">No</button>
           </div>
         </div>
         <div class="big-figure">
           <div class="speech">EMERGENCY!</div>
-          <div class="man"><img src="Oliver_hehe.png" alt="Boyfriend"></div>
+          <div class="man"><img src="Oliver_hehe.png" alt="Boyfriend" id="introOliver"></div>
         </div>
       </div>
     </section>
@@ -624,6 +660,10 @@
     const storyParagraphs = Array.from(document.querySelectorAll("#storyBox p"));
     const animationProgressFill = document.getElementById("animationProgressFill");
     const animationProgressLabel = document.getElementById("animationProgressLabel");
+    const introOliver = document.getElementById("introOliver");
+    const introActions = document.getElementById("introActions");
+    const goToPoopBtn = document.getElementById("goToPoop");
+    const sayNoBtn = document.getElementById("sayNoBtn");
     const frames = ["frame1", "frame2", "frame3"].map(id => document.getElementById(id));
 
     let currentTool = "paper";
@@ -639,6 +679,7 @@
     let progressAnimationFrame = null;
     let animationProgressStartTime = 0;
     let animationProgressDuration = 1;
+    let introSaysNo = false;
 
     function showScene(name) {
       Object.values(scenes).forEach(scene => scene.classList.remove("active"));
@@ -702,6 +743,12 @@
       clearAnimationTimer();
       clearStoryTyping();
       clearProgressAnimation();
+      introOliver.src = "Oliver_hehe.png";
+      sayNoBtn.textContent = "No";
+      sayNoBtn.className = "toggle-no";
+      introActions.classList.remove("no-active");
+      goToPoopBtn.disabled = false;
+      introSaysNo = false;
       showScene("animation");
       setStatus("Pooping...");
       frames.forEach(frame => frame.classList.remove("active"));
@@ -934,7 +981,15 @@
       return { x, y };
     }
 
-    document.getElementById("goToPoop").addEventListener("click", runAnimation);
+    goToPoopBtn.addEventListener("click", runAnimation);
+    sayNoBtn.addEventListener("click", () => {
+      introSaysNo = !introSaysNo;
+      introOliver.src = introSaysNo ? "Oliver_no.png" : "Oliver_hehe.png";
+      sayNoBtn.textContent = introSaysNo ? "Yes" : "No";
+      sayNoBtn.className = introSaysNo ? "toggle-yes" : "toggle-no";
+      introActions.classList.toggle("no-active", introSaysNo);
+      goToPoopBtn.disabled = introSaysNo;
+    });
     document.getElementById("finishBtn").addEventListener("click", finishCheck);
     playAgainBtn.addEventListener("click", () => {
       clearAnimationTimer();
