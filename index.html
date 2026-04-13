@@ -48,6 +48,7 @@
       grid-template-columns: 1fr auto;
       align-items: center;
       padding: 22px 26px;
+      border-radius: 32px 32px 0 0;
       background: linear-gradient(90deg, rgba(142, 61, 242, 0.88), rgba(208, 151, 255, 0.92));
     }
     .title {
@@ -178,6 +179,35 @@
       margin-top: 6px;
       align-items: stretch;
     }
+    .animation-progress {
+      display: grid;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .animation-progress-label {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #7b5b91;
+      text-align: center;
+    }
+    .animation-progress-track {
+      height: 14px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #f1defa, #ead0f8);
+      border: 1px solid rgba(157, 78, 221, 0.1);
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.72);
+    }
+    .animation-progress-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #8d3df2, #d392ff);
+      box-shadow: 0 0 0 4px rgba(141, 61, 242, 0.12);
+      transition: width 0.35s ease;
+    }
     .frame {
       min-height: 0;
       padding: 18px 18px 16px;
@@ -229,6 +259,13 @@
       background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,240,255,0.95));
       position: relative;
       overflow: hidden;
+    }
+    .story-box.hidden {
+      display: none;
+    }
+    #storyBox {
+      font-family: "Courier New", "American Typewriter", "Liberation Mono", monospace;
+      letter-spacing: 0.02em;
     }
     .story-box::before {
       content: "";
@@ -407,6 +444,12 @@
     <section class="scene" id="sceneAnimation">
       <div class="card">
         <h2 style="text-align:center;">Oli Goes To The Toilet</h2>
+        <div class="animation-progress" aria-label="Toilet mission progress">
+          <div class="animation-progress-label" id="animationProgressLabel">Mission Progress: 0%</div>
+          <div class="animation-progress-track">
+            <div class="animation-progress-fill" id="animationProgressFill"></div>
+          </div>
+        </div>
         <div class="animation-stage">
           <div class="frame" id="frame1">
             <img src="Oliver_sprint.png" alt="Oliver sprinting to the toilet">
@@ -424,10 +467,10 @@
             <div class="frame-copy">A proud little masterpiece appeared, looking way too pleased with itself.</div>
           </div>
         </div>
-        <div class="story-box sub">
-          <p>Oliver felt the rumble of destiny and activated turbo mode. He sprinted to the toilet like a true hero, fighting for his life and for the safety of everyone nearby.</p>
-          <p>He made it just in time, sat down, and achieved absolute inner peace. A few moments later, his masterpiece appeared: a proud little poop with Oliver's own face, looking way too pleased with itself.</p>
-          <p>So the legend says: Oliver did not simply go to the toilet. Oliver completed a mission.</p>
+        <div class="story-box sub" id="storyBox">
+          <p data-story-text="Oliver felt the rumble of destiny and activated turbo mode. He sprinted to the toilet like a true hero, fighting for his life and for the safety of everyone nearby."></p>
+          <p data-story-text="He made it just in time, sat down, and achieved absolute inner peace. A few moments later, his masterpiece appeared: a proud little poop with Oliver's own face, looking way too pleased with itself."></p>
+          <p data-story-text="So the legend says: Oliver did not simply go to the toilet. Oliver completed a mission."></p>
         </div>
         <div class="btns">
           <button class="primary" id="nextToGame">Wipe Butt</button>
@@ -451,7 +494,7 @@
         </div>
         <div class="play-area-wrap">
           <div class="card">
-            <strong>Residue Level</strong>
+            <strong>Remaining Poopoo 💩</strong>
             <div class="meter" style="margin-top:10px;"><div class="meter-fill" id="meterFill"></div></div>
           </div>
           <div class="play-area" id="playArea">
@@ -495,6 +538,10 @@
     const resultTitle = document.getElementById("resultTitle");
     const resultText = document.getElementById("resultText");
     const playAgainBtn = document.getElementById("playAgainBtn");
+    const storyBox = document.getElementById("storyBox");
+    const storyParagraphs = Array.from(document.querySelectorAll("#storyBox p"));
+    const animationProgressFill = document.getElementById("animationProgressFill");
+    const animationProgressLabel = document.getElementById("animationProgressLabel");
     const frames = ["frame1", "frame2", "frame3"].map(id => document.getElementById(id));
 
     let currentTool = "paper";
@@ -504,6 +551,7 @@
     let activePointerId = null;
     let smearCount = 0;
     let animationTimer = null;
+    let storyTypingTimer = null;
     let resultAction = "home";
 
     function showScene(name) {
@@ -522,6 +570,59 @@
       }
     }
 
+    function clearStoryTyping() {
+      if (storyTypingTimer !== null) {
+        clearTimeout(storyTypingTimer);
+        storyTypingTimer = null;
+      }
+    }
+
+    function setAnimationProgress(completedUnits, totalUnits) {
+      const safeTotal = Math.max(1, totalUnits);
+      const progressPercent = Math.max(0, Math.min(100, completedUnits / safeTotal * 100));
+      animationProgressFill.style.width = progressPercent + "%";
+      animationProgressLabel.textContent = `Mission Progress: ${Math.round(progressPercent)}%`;
+    }
+
+    function runStoryTypewriter() {
+      clearStoryTyping();
+      storyBox.classList.remove("hidden");
+      const storyLines = storyParagraphs.map(paragraph => paragraph.dataset.storyText || "");
+      const totalStoryChars = storyLines.reduce((sum, line) => sum + line.length, 0);
+      const totalUnits = frames.length + totalStoryChars;
+      let typedChars = 0;
+      storyParagraphs.forEach(paragraph => {
+        paragraph.textContent = "";
+      });
+
+      let paragraphIndex = 0;
+      let charIndex = 0;
+
+      function typeNextCharacter() {
+        if (paragraphIndex >= storyLines.length) {
+          storyTypingTimer = null;
+          return;
+        }
+
+        const currentLine = storyLines[paragraphIndex];
+        storyParagraphs[paragraphIndex].textContent = currentLine.slice(0, charIndex + 1);
+        charIndex += 1;
+        typedChars += 1;
+        setAnimationProgress(frames.length + typedChars, totalUnits);
+
+        if (charIndex >= currentLine.length) {
+          paragraphIndex += 1;
+          charIndex = 0;
+          storyTypingTimer = window.setTimeout(typeNextCharacter, 220);
+          return;
+        }
+
+        storyTypingTimer = window.setTimeout(typeNextCharacter, 22);
+      }
+
+      typeNextCharacter();
+    }
+
     function endPointerInteraction() {
       isPointerDown = false;
       activePointerId = null;
@@ -530,17 +631,29 @@
 
     function runAnimation() {
       clearAnimationTimer();
+      clearStoryTyping();
       showScene("animation");
       setStatus("Pooping...");
       frames.forEach(frame => frame.classList.remove("active"));
+      const totalStoryChars = storyParagraphs.reduce((sum, paragraph) => {
+        return sum + (paragraph.dataset.storyText || "").length;
+      }, 0);
+      const totalUnits = frames.length + totalStoryChars;
+      setAnimationProgress(0, totalUnits);
+      storyBox.classList.add("hidden");
+      storyParagraphs.forEach(paragraph => {
+        paragraph.textContent = "";
+      });
       let index = 0;
       function nextFrame() {
         if (index < frames.length) {
           frames[index].classList.add("active");
           index += 1;
+          setAnimationProgress(index, totalUnits);
           animationTimer = window.setTimeout(nextFrame, 650);
         } else {
           animationTimer = null;
+          runStoryTypewriter();
         }
       }
       nextFrame();
@@ -634,7 +747,7 @@
       endPointerInteraction();
       showScene("result");
       setStatus("Inspection Results Complete");
-      if (usingHand || dirt >= 90) {
+      if (dirt > 100) {
         resultAction = "retry";
         playAgainBtn.textContent = "Try Again";
         playAgainBtn.className = "danger";
