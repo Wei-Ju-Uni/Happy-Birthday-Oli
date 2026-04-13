@@ -356,6 +356,9 @@
       touch-action: none;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
     }
+    .play-area.clean-finish .stain {
+      pointer-events: none;
+    }
     .stain {
       position: absolute;
       left: 50%;
@@ -367,6 +370,53 @@
       transform: translate(-50%, -50%);
       transition: opacity 0.15s linear, filter 0.15s linear, transform 0.15s ease;
       z-index: 3;
+    }
+    .sparkle-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 4;
+    }
+    .sparkle {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.2) rotate(0deg);
+      animation: sparkle-pop 2200ms ease-out forwards;
+    }
+    .sparkle::before,
+    .sparkle::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,255,255,1), rgba(255,231,130,0.95));
+      box-shadow: 0 0 14px rgba(255, 234, 140, 0.9);
+      transform: translate(-50%, -50%);
+    }
+    .sparkle::before {
+      width: 5px;
+      height: 28px;
+    }
+    .sparkle::after {
+      width: 28px;
+      height: 5px;
+    }
+    @keyframes sparkle-pop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.2) rotate(0deg);
+      }
+      25% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.05) rotate(45deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.55) rotate(90deg);
+      }
     }
     .smear, .cursor-tool { position: absolute; pointer-events: none; }
     .smear {
@@ -512,6 +562,7 @@
           <div class="play-area" id="playArea">
             <div class="butt"><img src="Oliver_ass.png" alt="Oliver butt"></div>
             <div class="stain" id="stain"></div>
+            <div class="sparkle-layer" id="sparkleLayer" aria-hidden="true"></div>
             <div class="cursor-tool" id="cursorTool"><img src="wet.png" alt="Current tool"></div>
           </div>
           <div class="reaction" id="reactionBox">Please select a tool first, then click and drag on the game area. Wet wipes clean the best, toilet paper barely helps, and your bare hand makes it worse.</div>
@@ -543,6 +594,7 @@
     const reactionBox = document.getElementById("reactionBox");
     const playArea = document.getElementById("playArea");
     const stain = document.getElementById("stain");
+    const sparkleLayer = document.getElementById("sparkleLayer");
     const meter = document.querySelector(".meter");
     const meterFill = document.getElementById("meterFill");
     const cursorTool = document.getElementById("cursorTool");
@@ -565,6 +617,8 @@
     let animationTimer = null;
     let storyTypingTimer = null;
     let resultAction = "home";
+    let sparkleBurstTimer = null;
+    let cleanCelebrated = false;
 
     function showScene(name) {
       Object.values(scenes).forEach(scene => scene.classList.remove("active"));
@@ -586,6 +640,13 @@
       if (storyTypingTimer !== null) {
         clearTimeout(storyTypingTimer);
         storyTypingTimer = null;
+      }
+    }
+
+    function clearSparkleBurst() {
+      if (sparkleBurstTimer !== null) {
+        clearTimeout(sparkleBurstTimer);
+        sparkleBurstTimer = null;
       }
     }
 
@@ -687,16 +748,22 @@
 
     function updateDirt() {
       const visibleDirt = Math.max(0, Math.min(160, dirt));
-      const opacity = 0.15 + Math.min(visibleDirt, 100) / 100 * 0.8;
+      const fullyClean = visibleDirt <= 2 && !usingHand;
+      const opacity = fullyClean ? 0 : 0.15 + Math.min(visibleDirt, 100) / 100 * 0.8;
       const scale = usingHand
         ? 1.08 + visibleDirt / 100 * 0.9
-        : 0.92 + Math.min(visibleDirt, 100) / 100 * 0.12;
+        : fullyClean
+          ? 0.82
+          : 0.92 + Math.min(visibleDirt, 100) / 100 * 0.12;
       const rotate = usingHand ? Math.min(28, smearCount * 0.7) : 0;
       stain.style.opacity = opacity;
       stain.style.transform = `translate(-50%, -50%) rotate(${rotate}deg) scale(${scale})`;
       stain.style.filter = usingHand
         ? `blur(${Math.min(13, smearCount * 0.22)}px) saturate(1.28)`
-        : `blur(${Math.max(0, dirt < 20 ? 1.2 : 0)}px)`;
+        : fullyClean
+          ? "blur(0px)"
+          : `blur(${Math.max(0, dirt < 20 ? 1.2 : 0)}px)`;
+      playArea.classList.toggle("clean-finish", fullyClean);
       meter.classList.toggle("chaos", usingHand && dirt > 100);
       meterFill.style.width = visibleDirt + "%";
       meterFill.style.background = dirt > 100
@@ -706,6 +773,26 @@
         : dirt > 25
           ? "linear-gradient(90deg, #c0864a, #e0a968)"
           : "linear-gradient(90deg, #ffcf8f, #ffdba9)";
+    }
+
+    function launchSparkleBurst() {
+      clearSparkleBurst();
+      sparkleLayer.innerHTML = "";
+      const sparklePoints = [
+        [45, 34], [58, 40], [37, 49], [62, 54], [49, 61], [54, 48]
+      ];
+      sparklePoints.forEach(([left, top], index) => {
+        const sparkle = document.createElement("div");
+        sparkle.className = "sparkle";
+        sparkle.style.left = left + "%";
+        sparkle.style.top = top + "%";
+        sparkle.style.animationDelay = index * 90 + "ms";
+        sparkleLayer.appendChild(sparkle);
+      });
+      sparkleBurstTimer = window.setTimeout(() => {
+        sparkleLayer.innerHTML = "";
+        sparkleBurstTimer = null;
+      }, 2900);
     }
 
     function addSmear(x, y) {
@@ -739,15 +826,26 @@
           : "What are you even doing? You're making this worse by the second.";
       }
       updateDirt();
+      if (currentTool === "wipe" && dirt <= 2 && !cleanCelebrated) {
+        cleanCelebrated = true;
+        reactionBox.textContent = "Perfect. All the brown is gone. Sparkly clean.";
+        launchSparkleBurst();
+      } else if (dirt > 2 || currentTool !== "wipe") {
+        cleanCelebrated = false;
+      }
     }
 
     function resetGame() {
       clearAnimationTimer();
+      clearSparkleBurst();
       endPointerInteraction();
       dirt = 100;
       usingHand = false;
       smearCount = 0;
+      cleanCelebrated = false;
       document.querySelectorAll(".smear").forEach(el => el.remove());
+      sparkleLayer.innerHTML = "";
+      playArea.classList.remove("clean-finish");
       setTool("paper");
       updateDirt();
       reactionBox.textContent = "Please select a tool first, then click and drag on the play area. Wet wipes clean best, toilet paper barely helps, and your hand makes things worse.";
