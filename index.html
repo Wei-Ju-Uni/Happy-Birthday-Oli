@@ -775,7 +775,7 @@
           : `blur(${Math.max(0, dirt < 20 ? 1.2 : 0)}px)`;
       playArea.classList.toggle("clean-finish", fullyClean);
       meter.classList.toggle("chaos", usingHand && dirt > 100);
-      meterFill.style.width = visibleDirt + "%";
+      meterFill.style.width = fullyClean ? "0%" : visibleDirt + "%";
       meterFill.style.background = dirt > 100
         ? "linear-gradient(90deg, #6a3415, #8f4517 55%, #c05f1f)"
         : dirt > 65
