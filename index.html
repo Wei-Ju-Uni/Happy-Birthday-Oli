@@ -164,11 +164,13 @@
       background: linear-gradient(180deg, var(--primary), var(--primary-dark));
       color: white;
     }
+    /* noinspection CssUnusedSymbol */
     .secondary {
       background: #fff;
       color: #5f3377;
       border: 1px solid rgba(157, 78, 221, 0.16);
     }
+    /* noinspection CssUnusedSymbol */
     .danger {
       background: linear-gradient(180deg, #8b5a2b, #5c3310);
       color: white;
@@ -201,7 +203,7 @@
       box-shadow: inset 0 1px 2px rgba(255,255,255,0.72);
     }
     .animation-progress-fill {
-      width: 0%;
+      width: 0;
       height: 100%;
       border-radius: 999px;
       background: linear-gradient(90deg, #8d3df2, #d392ff);
@@ -260,6 +262,7 @@
       position: relative;
       overflow: hidden;
     }
+    /* noinspection CssUnusedSymbol */
     .story-box.hidden {
       display: none;
     }
@@ -329,6 +332,7 @@
       background: linear-gradient(180deg, #f1defa, #ead0f8);
       border: 1px solid rgba(157, 78, 221, 0.08);
     }
+    /* noinspection CssUnusedSymbol */
     .meter.chaos {
       overflow: visible;
     }
@@ -377,14 +381,16 @@
       pointer-events: none;
       z-index: 4;
     }
+    /* noinspection CssUnusedSymbol */
     .sparkle {
       position: absolute;
       width: 28px;
       height: 28px;
-      opacity: 0;
-      transform: translate(-50%, -50%) scale(0.2) rotate(0deg);
-      animation: sparkle-pop 2200ms ease-out forwards;
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotate(45deg);
+      animation: sparkle-pop 4000ms ease-in-out infinite;
     }
+    /* noinspection CssUnusedSymbol */
     .sparkle::before,
     .sparkle::after {
       content: "";
@@ -396,29 +402,41 @@
       box-shadow: 0 0 14px rgba(255, 234, 140, 0.9);
       transform: translate(-50%, -50%);
     }
+    /* noinspection CssUnusedSymbol */
     .sparkle::before {
       width: 5px;
       height: 28px;
     }
+    /* noinspection CssUnusedSymbol */
     .sparkle::after {
       width: 28px;
       height: 5px;
     }
     @keyframes sparkle-pop {
       0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.2) rotate(0deg);
+        opacity: 0.45;
+        transform: translate(-50%, -50%) scale(0.76) rotate(0deg);
       }
-      25% {
+      20% {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1.05) rotate(45deg);
       }
+      50% {
+        opacity: 0.95;
+        transform: translate(-50%, -50%) scale(1) rotate(68deg);
+      }
+      80% {
+        opacity: 0.7;
+        transform: translate(-50%, -50%) scale(0.94) rotate(85deg);
+      }
       100% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.55) rotate(90deg);
+        transform: translate(-50%, -50%) scale(0.82) rotate(90deg);
       }
     }
+    /* noinspection CssUnusedSymbol */
     .smear, .cursor-tool { position: absolute; pointer-events: none; }
+    /* noinspection CssUnusedSymbol, CssUnresolvedCustomProperty */
     .smear {
       border-radius: 999px;
       background: rgba(92, 45, 16, 0.26);
@@ -617,7 +635,6 @@
     let animationTimer = null;
     let storyTypingTimer = null;
     let resultAction = "home";
-    let sparkleBurstTimer = null;
     let cleanCelebrated = false;
 
     function showScene(name) {
@@ -640,13 +657,6 @@
       if (storyTypingTimer !== null) {
         clearTimeout(storyTypingTimer);
         storyTypingTimer = null;
-      }
-    }
-
-    function clearSparkleBurst() {
-      if (sparkleBurstTimer !== null) {
-        clearTimeout(sparkleBurstTimer);
-        sparkleBurstTimer = null;
       }
     }
 
@@ -776,7 +786,6 @@
     }
 
     function launchSparkleBurst() {
-      clearSparkleBurst();
       sparkleLayer.innerHTML = "";
       const sparklePoints = [
         [45, 34], [58, 40], [37, 49], [62, 54], [49, 61], [54, 48]
@@ -789,10 +798,6 @@
         sparkle.style.animationDelay = index * 90 + "ms";
         sparkleLayer.appendChild(sparkle);
       });
-      sparkleBurstTimer = window.setTimeout(() => {
-        sparkleLayer.innerHTML = "";
-        sparkleBurstTimer = null;
-      }, 2900);
     }
 
     function addSmear(x, y) {
@@ -808,6 +813,13 @@
     }
 
     function scrub(x, y) {
+      const fullyClean = dirt <= 2 && !usingHand;
+
+      // If already fully clean, prevent any further changes
+      if (fullyClean) {
+        return;
+      }
+
       if (currentTool === "wipe") {
         dirt = Math.max(0, dirt - 1.7);
         usingHand = false;
@@ -837,7 +849,6 @@
 
     function resetGame() {
       clearAnimationTimer();
-      clearSparkleBurst();
       endPointerInteraction();
       dirt = 100;
       usingHand = false;
@@ -854,6 +865,7 @@
 
     function finishCheck() {
       clearAnimationTimer();
+      sparkleLayer.innerHTML = "";
       endPointerInteraction();
       showScene("result");
       setStatus("Inspection Results Complete");
