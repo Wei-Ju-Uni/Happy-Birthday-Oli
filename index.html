@@ -630,6 +630,7 @@
       </div>
     </section>
   </div>
+  <audio id="poopSound" preload="auto" src="poop_sound.mp3"></audio>
 
   <script>
     const scenes = {
@@ -658,6 +659,7 @@
     const goToPoopBtn = document.getElementById("goToPoop");
     const sayNoBtn = document.getElementById("sayNoBtn");
     const poopButton = document.getElementById("poopButton");
+    const poopSound = document.getElementById("poopSound");
     const frames = ["frame1", "frame2", "frame3"].map(id => document.getElementById(id));
     const frameCopies = Array.from(document.querySelectorAll(".frame-copy"));
     const animationOutro = document.getElementById("animationOutro");
@@ -676,10 +678,6 @@
     let animationProgressStartTime = 0;
     let animationProgressDuration = 1;
     let introSaysNo = false;
-    let fartAudioContext = null;
-    let fartNoiseSource = null;
-    let fartOscillator = null;
-    let fartCleanupTimer = null;
     let waitingForPoop = false;
     let continueAnimationAfterPoop = null;
     let progressPausedPercent = 0;
@@ -716,101 +714,13 @@
       }
     }
 
-    function stopFartSound() {
-      if (fartCleanupTimer !== null) {
-        clearTimeout(fartCleanupTimer);
-        fartCleanupTimer = null;
-      }
-      if (fartNoiseSource) {
-        try {
-          fartNoiseSource.stop();
-        } catch (error) {
-          // Ignore if the source already finished.
-        }
-        fartNoiseSource.disconnect();
-        fartNoiseSource = null;
-      }
-      if (fartOscillator) {
-        try {
-          fartOscillator.stop();
-        } catch (error) {
-          // Ignore if the oscillator already finished.
-        }
-        fartOscillator.disconnect();
-        fartOscillator = null;
-      }
-    }
-
-    async function playFartSound() {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContextClass) {
+    function playPoopSound() {
+      if (!poopSound) {
         return;
       }
-
-      if (!fartAudioContext) {
-        fartAudioContext = new AudioContextClass();
-      }
-
-      if (fartAudioContext.state === "suspended") {
-        await fartAudioContext.resume();
-      }
-
-      stopFartSound();
-
-      const duration = 2.9;
-      const sampleRate = fartAudioContext.sampleRate;
-      const buffer = fartAudioContext.createBuffer(1, Math.floor(sampleRate * duration), sampleRate);
-      const channelData = buffer.getChannelData(0);
-
-      for (let i = 0; i < channelData.length; i += 1) {
-        const progress = i / channelData.length;
-        const noise = (Math.random() * 2 - 1) * (1 - progress * 0.7);
-        channelData[i] = noise;
-      }
-
-      const noiseSource = fartAudioContext.createBufferSource();
-      noiseSource.buffer = buffer;
-
-      const lowpass = fartAudioContext.createBiquadFilter();
-      lowpass.type = "lowpass";
-      lowpass.frequency.setValueAtTime(220, fartAudioContext.currentTime);
-      lowpass.frequency.exponentialRampToValueAtTime(90, fartAudioContext.currentTime + duration);
-
-      const noiseGain = fartAudioContext.createGain();
-      noiseGain.gain.setValueAtTime(0.0001, fartAudioContext.currentTime);
-      noiseGain.gain.exponentialRampToValueAtTime(0.28, fartAudioContext.currentTime + 0.08);
-      noiseGain.gain.exponentialRampToValueAtTime(0.16, fartAudioContext.currentTime + 1.6);
-      noiseGain.gain.exponentialRampToValueAtTime(0.0001, fartAudioContext.currentTime + duration);
-
-      const oscillator = fartAudioContext.createOscillator();
-      oscillator.type = "sawtooth";
-      oscillator.frequency.setValueAtTime(120, fartAudioContext.currentTime);
-      oscillator.frequency.exponentialRampToValueAtTime(55, fartAudioContext.currentTime + duration);
-
-      const oscGain = fartAudioContext.createGain();
-      oscGain.gain.setValueAtTime(0.0001, fartAudioContext.currentTime);
-      oscGain.gain.exponentialRampToValueAtTime(0.035, fartAudioContext.currentTime + 0.05);
-      oscGain.gain.exponentialRampToValueAtTime(0.018, fartAudioContext.currentTime + 1.5);
-      oscGain.gain.exponentialRampToValueAtTime(0.0001, fartAudioContext.currentTime + duration);
-
-      noiseSource.connect(lowpass);
-      lowpass.connect(noiseGain);
-      noiseGain.connect(fartAudioContext.destination);
-
-      oscillator.connect(oscGain);
-      oscGain.connect(fartAudioContext.destination);
-
-      fartNoiseSource = noiseSource;
-      fartOscillator = oscillator;
-
-      noiseSource.start();
-      oscillator.start();
-      noiseSource.stop(fartAudioContext.currentTime + duration);
-      oscillator.stop(fartAudioContext.currentTime + duration);
-
-      fartCleanupTimer = window.setTimeout(() => {
-        stopFartSound();
-      }, Math.ceil(duration * 1000) + 120);
+      poopSound.pause();
+      poopSound.currentTime = 0;
+      poopSound.play().catch(() => {});
     }
 
     function setIntroDecisionState(isNo) {
@@ -861,7 +771,8 @@
       clearAnimationTimer();
       clearStoryTyping();
       clearProgressAnimation();
-      stopFartSound();
+      poopSound.pause();
+      poopSound.currentTime = 0;
       setIntroDecisionState(false);
       showScene("animation");
       setStatus("Pooping...");
@@ -871,6 +782,7 @@
       });
       animationOutro.textContent = "";
       poopButton.classList.add("hidden");
+      poopButton.textContent = "Poop";
       waitingForPoop = false;
       continueAnimationAfterPoop = null;
       progressPausedPercent = 0;
@@ -902,7 +814,7 @@
                 poopButton.classList.remove("hidden");
                 continueAnimationAfterPoop = () => {
                   waitingForPoop = false;
-                  poopButton.classList.add("hidden");
+                  poopButton.textContent = "Poop Again";
                   startAnimationProgress(postPoopProgressDuration, progressPausedPercent, 99);
                   animationTimer = window.setTimeout(nextStep, delayBetweenFrames);
                 };
@@ -1165,7 +1077,7 @@
     });
     document.getElementById("nextToGame").addEventListener("click", () => { showScene("game"); resetGame(); });
     poopButton.addEventListener("click", () => {
-      playFartSound();
+      playPoopSound();
       if (waitingForPoop) {
         const resumeAnimation = continueAnimationAfterPoop;
         continueAnimationAfterPoop = null;
