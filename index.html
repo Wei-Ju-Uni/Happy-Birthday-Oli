@@ -185,25 +185,21 @@
       color: white;
     }
     .intro-actions {
-      position: relative;
-      grid-template-columns: repeat(2, minmax(180px, max-content));
+      grid-template-columns: repeat(2, 180px);
+      gap: 18px;
+      width: 378px;
+      max-width: 100%;
       align-items: stretch;
-      overflow: hidden;
     }
     .intro-actions button {
       height: 52px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.35s ease, opacity 0.35s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, min-width 0.35s ease;
-    }
-    .intro-actions.no-active {
-      grid-template-columns: 0fr minmax(180px, max-content);
+      transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
     }
     .intro-actions.no-active #goToPoop {
-      opacity: 0;
-      transform: translateX(-120px) scale(0.92);
-      pointer-events: none;
+      opacity: 0.55;
     }
     /* noinspection CssUnusedSymbol */
     .danger {
@@ -520,6 +516,10 @@
       .topbar, .hero, .animation-stage, .game-grid { grid-template-columns: 1fr; }
       .topbar { text-align: center; }
       .btns { grid-template-columns: 1fr; }
+      .intro-actions {
+        width: 100%;
+        grid-template-columns: 1fr 1fr;
+      }
       .butt { padding: 0; }
       .play-area { min-height: 0; }
       .stain { width: 140px; height: 95px; }
@@ -711,6 +711,15 @@
       }
     }
 
+    function setIntroDecisionState(isNo) {
+      introSaysNo = isNo;
+      introOliver.src = isNo ? "Oliver_no.png" : "Oliver_hehe.png";
+      sayNoBtn.textContent = isNo ? "Yes" : "No";
+      sayNoBtn.className = isNo ? "toggle-yes" : "toggle-no";
+      introActions.classList.toggle("no-active", isNo);
+      goToPoopBtn.disabled = isNo;
+    }
+
     function setAnimationProgress(progressPercent) {
       const safeProgress = Math.max(0, Math.min(100, progressPercent));
       animationProgressFill.style.width = safeProgress + "%";
@@ -743,12 +752,7 @@
       clearAnimationTimer();
       clearStoryTyping();
       clearProgressAnimation();
-      introOliver.src = "Oliver_hehe.png";
-      sayNoBtn.textContent = "No";
-      sayNoBtn.className = "toggle-no";
-      introActions.classList.remove("no-active");
-      goToPoopBtn.disabled = false;
-      introSaysNo = false;
+      setIntroDecisionState(false);
       showScene("animation");
       setStatus("Pooping...");
       frames.forEach(frame => frame.classList.remove("active"));
@@ -983,12 +987,7 @@
 
     goToPoopBtn.addEventListener("click", runAnimation);
     sayNoBtn.addEventListener("click", () => {
-      introSaysNo = !introSaysNo;
-      introOliver.src = introSaysNo ? "Oliver_no.png" : "Oliver_hehe.png";
-      sayNoBtn.textContent = introSaysNo ? "Yes" : "No";
-      sayNoBtn.className = introSaysNo ? "toggle-yes" : "toggle-no";
-      introActions.classList.toggle("no-active", introSaysNo);
-      goToPoopBtn.disabled = introSaysNo;
+      setIntroDecisionState(!introSaysNo);
     });
     document.getElementById("finishBtn").addEventListener("click", finishCheck);
     playAgainBtn.addEventListener("click", () => {
