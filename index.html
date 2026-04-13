@@ -287,6 +287,18 @@
       font-family: "Courier New", "American Typewriter", "Liberation Mono", monospace;
       letter-spacing: 0.02em;
     }
+    .frame-action {
+      justify-self: center;
+      min-width: 120px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #b76b2d, #8a4718);
+      color: #fff8ef;
+      box-shadow: 0 10px 18px rgba(103, 52, 24, 0.18);
+    }
+    .frame-action.hidden {
+      display: none;
+    }
     .animation-outro {
       margin-top: 18px;
       color: var(--muted);
@@ -562,6 +574,7 @@
             <img src="Oliver_toilet.png" alt="Oliver safely reaching the toilet">
             <div class="frame-title">Just In Time</div>
             <div class="frame-copy" data-story-text="He made it just in time, sat down, and achieved absolute inner peace."></div>
+            <button class="frame-action hidden" id="poopButton" type="button">Poop</button>
           </div>
           <div class="frame" id="frame3">
             <img src="Oliver_poop.png" alt="Oliver's proud masterpiece">
@@ -644,6 +657,7 @@
     const introActions = document.getElementById("introActions");
     const goToPoopBtn = document.getElementById("goToPoop");
     const sayNoBtn = document.getElementById("sayNoBtn");
+    const poopButton = document.getElementById("poopButton");
     const frames = ["frame1", "frame2", "frame3"].map(id => document.getElementById(id));
     const frameCopies = Array.from(document.querySelectorAll(".frame-copy"));
     const animationOutro = document.getElementById("animationOutro");
@@ -662,6 +676,15 @@
     let animationProgressStartTime = 0;
     let animationProgressDuration = 1;
     let introSaysNo = false;
+    let fartAudioContext = null;
+    let fartNoiseSource = null;
+    let fartOscillator = null;
+    let fartCleanupTimer = null;
+    let waitingForPoop = false;
+    let continueAnimationAfterPoop = null;
+    let progressPausedPercent = 0;
+    let prePoopProgressDuration = 1;
+    let postPoopProgressDuration = 1;
 
     function showScene(name) {
       Object.values(scenes).forEach(scene => scene.classList.remove("active"));
@@ -693,6 +716,103 @@
       }
     }
 
+    function stopFartSound() {
+      if (fartCleanupTimer !== null) {
+        clearTimeout(fartCleanupTimer);
+        fartCleanupTimer = null;
+      }
+      if (fartNoiseSource) {
+        try {
+          fartNoiseSource.stop();
+        } catch (error) {
+          // Ignore if the source already finished.
+        }
+        fartNoiseSource.disconnect();
+        fartNoiseSource = null;
+      }
+      if (fartOscillator) {
+        try {
+          fartOscillator.stop();
+        } catch (error) {
+          // Ignore if the oscillator already finished.
+        }
+        fartOscillator.disconnect();
+        fartOscillator = null;
+      }
+    }
+
+    async function playFartSound() {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) {
+        return;
+      }
+
+      if (!fartAudioContext) {
+        fartAudioContext = new AudioContextClass();
+      }
+
+      if (fartAudioContext.state === "suspended") {
+        await fartAudioContext.resume();
+      }
+
+      stopFartSound();
+
+      const duration = 2.9;
+      const sampleRate = fartAudioContext.sampleRate;
+      const buffer = fartAudioContext.createBuffer(1, Math.floor(sampleRate * duration), sampleRate);
+      const channelData = buffer.getChannelData(0);
+
+      for (let i = 0; i < channelData.length; i += 1) {
+        const progress = i / channelData.length;
+        const noise = (Math.random() * 2 - 1) * (1 - progress * 0.7);
+        channelData[i] = noise;
+      }
+
+      const noiseSource = fartAudioContext.createBufferSource();
+      noiseSource.buffer = buffer;
+
+      const lowpass = fartAudioContext.createBiquadFilter();
+      lowpass.type = "lowpass";
+      lowpass.frequency.setValueAtTime(220, fartAudioContext.currentTime);
+      lowpass.frequency.exponentialRampToValueAtTime(90, fartAudioContext.currentTime + duration);
+
+      const noiseGain = fartAudioContext.createGain();
+      noiseGain.gain.setValueAtTime(0.0001, fartAudioContext.currentTime);
+      noiseGain.gain.exponentialRampToValueAtTime(0.28, fartAudioContext.currentTime + 0.08);
+      noiseGain.gain.exponentialRampToValueAtTime(0.16, fartAudioContext.currentTime + 1.6);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, fartAudioContext.currentTime + duration);
+
+      const oscillator = fartAudioContext.createOscillator();
+      oscillator.type = "sawtooth";
+      oscillator.frequency.setValueAtTime(120, fartAudioContext.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(55, fartAudioContext.currentTime + duration);
+
+      const oscGain = fartAudioContext.createGain();
+      oscGain.gain.setValueAtTime(0.0001, fartAudioContext.currentTime);
+      oscGain.gain.exponentialRampToValueAtTime(0.035, fartAudioContext.currentTime + 0.05);
+      oscGain.gain.exponentialRampToValueAtTime(0.018, fartAudioContext.currentTime + 1.5);
+      oscGain.gain.exponentialRampToValueAtTime(0.0001, fartAudioContext.currentTime + duration);
+
+      noiseSource.connect(lowpass);
+      lowpass.connect(noiseGain);
+      noiseGain.connect(fartAudioContext.destination);
+
+      oscillator.connect(oscGain);
+      oscGain.connect(fartAudioContext.destination);
+
+      fartNoiseSource = noiseSource;
+      fartOscillator = oscillator;
+
+      noiseSource.start();
+      oscillator.start();
+      noiseSource.stop(fartAudioContext.currentTime + duration);
+      oscillator.stop(fartAudioContext.currentTime + duration);
+
+      fartCleanupTimer = window.setTimeout(() => {
+        stopFartSound();
+      }, Math.ceil(duration * 1000) + 120);
+    }
+
     function setIntroDecisionState(isNo) {
       introSaysNo = isNo;
       introOliver.src = isNo ? "Oliver_no.png" : "Oliver_hehe.png";
@@ -708,22 +828,23 @@
       animationProgressLabel.textContent = `Mission Progress: ${Math.floor(safeProgress)}%`;
     }
 
-    function startAnimationProgress(totalDuration) {
+    function startAnimationProgress(totalDuration, startPercent = 0, endPercent = 99) {
       clearProgressAnimation();
       animationProgressStartTime = performance.now();
       animationProgressDuration = Math.max(1, totalDuration);
-      setAnimationProgress(0);
+      setAnimationProgress(startPercent);
 
       function tick(now) {
         const elapsed = now - animationProgressStartTime;
-        const progress = Math.min(99, elapsed / animationProgressDuration * 100);
+        const progressRange = endPercent - startPercent;
+        const progress = Math.min(endPercent, startPercent + elapsed / animationProgressDuration * progressRange);
         setAnimationProgress(progress);
 
         if (elapsed < animationProgressDuration) {
           progressAnimationFrame = window.requestAnimationFrame(tick);
         } else {
           progressAnimationFrame = null;
-          setAnimationProgress(99);
+          setAnimationProgress(endPercent);
         }
       }
 
@@ -740,6 +861,7 @@
       clearAnimationTimer();
       clearStoryTyping();
       clearProgressAnimation();
+      stopFartSound();
       setIntroDecisionState(false);
       showScene("animation");
       setStatus("Pooping...");
@@ -748,15 +870,23 @@
         copy.textContent = "";
       });
       animationOutro.textContent = "";
+      poopButton.classList.add("hidden");
+      waitingForPoop = false;
+      continueAnimationAfterPoop = null;
+      progressPausedPercent = 0;
 
       let index = 0;
-      const totalStoryChars = frameCopies.reduce((sum, copy) => {
-        return sum + (copy.dataset.storyText || "").length;
-      }, 0) + (animationOutro.dataset.storyText || "").length;
       const frameDisplayDuration = 650;
       const delayBetweenFrames = 800;
-      const totalDuration = frames.length * frameDisplayDuration + totalStoryChars * 35 + frames.length * delayBetweenFrames;
-      startAnimationProgress(totalDuration);
+      const frame1Duration = frameDisplayDuration + (frameCopies[0].dataset.storyText || "").length * 35 + delayBetweenFrames;
+      const frame2Duration = frameDisplayDuration + (frameCopies[1].dataset.storyText || "").length * 35;
+      const frame3Duration = frameDisplayDuration + (frameCopies[2].dataset.storyText || "").length * 35 + delayBetweenFrames;
+      const outroDuration = frameDisplayDuration + (animationOutro.dataset.storyText || "").length * 35;
+      prePoopProgressDuration = frame1Duration + frame2Duration;
+      postPoopProgressDuration = frame3Duration + outroDuration;
+      const totalDuration = prePoopProgressDuration + postPoopProgressDuration;
+      progressPausedPercent = prePoopProgressDuration / totalDuration * 99;
+      startAnimationProgress(prePoopProgressDuration, 0, progressPausedPercent);
 
       function nextStep() {
         if (index < frames.length) {
@@ -765,7 +895,20 @@
           animationTimer = window.setTimeout(() => {
             typeStoryParagraphSmooth(index, () => {
               index += 1;
-              animationTimer = window.setTimeout(nextStep, delayBetweenFrames);
+              if (index === 2) {
+                waitingForPoop = true;
+                clearProgressAnimation();
+                setAnimationProgress(progressPausedPercent);
+                poopButton.classList.remove("hidden");
+                continueAnimationAfterPoop = () => {
+                  waitingForPoop = false;
+                  poopButton.classList.add("hidden");
+                  startAnimationProgress(postPoopProgressDuration, progressPausedPercent, 99);
+                  animationTimer = window.setTimeout(nextStep, delayBetweenFrames);
+                };
+              } else {
+                animationTimer = window.setTimeout(nextStep, delayBetweenFrames);
+              }
             });
           }, frameDisplayDuration);
         } else if (index === frames.length) {
@@ -1021,6 +1164,16 @@
       el.addEventListener("click", () => setTool(el.dataset.tool));
     });
     document.getElementById("nextToGame").addEventListener("click", () => { showScene("game"); resetGame(); });
+    poopButton.addEventListener("click", () => {
+      playFartSound();
+      if (waitingForPoop) {
+        const resumeAnimation = continueAnimationAfterPoop;
+        continueAnimationAfterPoop = null;
+        if (resumeAnimation) {
+          resumeAnimation();
+        }
+      }
+    });
 
     playArea.addEventListener("pointerdown", event => {
       isPointerDown = true;
