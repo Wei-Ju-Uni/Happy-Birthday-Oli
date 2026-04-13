@@ -508,7 +508,7 @@
       <div class="hero">
         <div class="card">
           <div class="badge" style="width:max-content;">Special Toilet Operations</div>
-          <h2>Uh oh stinky..... Oliver wants to go to the toilet</h2>
+          <h2>Uh oh stinky.....<br>Oliver wants to go to the toilet 🚽</h2>
           <p class="sub">Should we send him to the toilet?</p>
           <div class="btns">
             <button class="primary" id="goToPoop">Go Poop</button>
@@ -636,6 +636,9 @@
     let storyTypingTimer = null;
     let resultAction = "home";
     let cleanCelebrated = false;
+    let progressAnimationFrame = null;
+    let animationProgressStartTime = 0;
+    let animationProgressDuration = 1;
 
     function showScene(name) {
       Object.values(scenes).forEach(scene => scene.classList.remove("active"));
@@ -660,45 +663,96 @@
       }
     }
 
-    function setAnimationProgress(completedUnits, totalUnits) {
-      const safeTotal = Math.max(1, totalUnits);
-      const progressPercent = Math.max(0, Math.min(100, completedUnits / safeTotal * 100));
-      animationProgressFill.style.width = progressPercent + "%";
-      animationProgressLabel.textContent = `Mission Progress: ${Math.round(progressPercent)}%`;
+    function clearProgressAnimation() {
+      if (progressAnimationFrame !== null) {
+        window.cancelAnimationFrame(progressAnimationFrame);
+        progressAnimationFrame = null;
+      }
     }
 
-    function runStoryTypewriter() {
+    function setAnimationProgress(progressPercent) {
+      const safeProgress = Math.max(0, Math.min(100, progressPercent));
+      animationProgressFill.style.width = safeProgress + "%";
+      animationProgressLabel.textContent = `Mission Progress: ${Math.floor(safeProgress)}%`;
+    }
+
+    function startAnimationProgress(totalDuration) {
+      clearProgressAnimation();
+      animationProgressStartTime = performance.now();
+      animationProgressDuration = Math.max(1, totalDuration);
+      setAnimationProgress(0);
+
+      function tick(now) {
+        const elapsed = now - animationProgressStartTime;
+        const progress = Math.min(99, elapsed / animationProgressDuration * 100);
+        setAnimationProgress(progress);
+
+        if (elapsed < animationProgressDuration) {
+          progressAnimationFrame = window.requestAnimationFrame(tick);
+        } else {
+          progressAnimationFrame = null;
+          setAnimationProgress(99);
+        }
+      }
+
+      progressAnimationFrame = window.requestAnimationFrame(tick);
+    }
+
+    function runAnimation() {
+      clearAnimationTimer();
       clearStoryTyping();
-      storyBox.classList.remove("hidden");
-      const storyLines = storyParagraphs.map(paragraph => paragraph.dataset.storyText || "");
-      const totalStoryChars = storyLines.reduce((sum, line) => sum + line.length, 0);
-      const totalUnits = frames.length + totalStoryChars;
-      let typedChars = 0;
+      clearProgressAnimation();
+      showScene("animation");
+      setStatus("Pooping...");
+      frames.forEach(frame => frame.classList.remove("active"));
+      storyBox.classList.add("hidden");
       storyParagraphs.forEach(paragraph => {
         paragraph.textContent = "";
       });
 
-      let paragraphIndex = 0;
+      let index = 0;
+      const totalStoryChars = storyParagraphs.reduce((sum, paragraph) => {
+        return sum + (paragraph.dataset.storyText || "").length;
+      }, 0);
+      const frameDisplayDuration = 650;
+      const delayBetweenFrames = 800;
+      const totalDuration = frames.length * frameDisplayDuration + totalStoryChars * 22 + frames.length * delayBetweenFrames;
+      startAnimationProgress(totalDuration);
+
+      function nextStep() {
+        if (index < frames.length) {
+          frames[index].classList.add("active");
+
+          animationTimer = window.setTimeout(() => {
+            typeStoryParagraphSmooth(index, () => {
+              index += 1;
+              animationTimer = window.setTimeout(nextStep, delayBetweenFrames);
+            });
+          }, frameDisplayDuration);
+        } else {
+          animationTimer = null;
+          clearProgressAnimation();
+          setAnimationProgress(100);
+        }
+      }
+
+      nextStep();
+    }
+
+    function typeStoryParagraphSmooth(paragraphIndex, callback) {
+      storyBox.classList.remove("hidden");
+      const storyText = storyParagraphs[paragraphIndex].dataset.storyText || "";
       let charIndex = 0;
 
       function typeNextCharacter() {
-        if (paragraphIndex >= storyLines.length) {
+        if (charIndex >= storyText.length) {
           storyTypingTimer = null;
+          if (callback) callback();
           return;
         }
 
-        const currentLine = storyLines[paragraphIndex];
-        storyParagraphs[paragraphIndex].textContent = currentLine.slice(0, charIndex + 1);
+        storyParagraphs[paragraphIndex].textContent = storyText.slice(0, charIndex + 1);
         charIndex += 1;
-        typedChars += 1;
-        setAnimationProgress(frames.length + typedChars, totalUnits);
-
-        if (charIndex >= currentLine.length) {
-          paragraphIndex += 1;
-          charIndex = 0;
-          storyTypingTimer = window.setTimeout(typeNextCharacter, 220);
-          return;
-        }
 
         storyTypingTimer = window.setTimeout(typeNextCharacter, 22);
       }
@@ -710,36 +764,6 @@
       isPointerDown = false;
       activePointerId = null;
       cursorTool.style.display = "none";
-    }
-
-    function runAnimation() {
-      clearAnimationTimer();
-      clearStoryTyping();
-      showScene("animation");
-      setStatus("Pooping...");
-      frames.forEach(frame => frame.classList.remove("active"));
-      const totalStoryChars = storyParagraphs.reduce((sum, paragraph) => {
-        return sum + (paragraph.dataset.storyText || "").length;
-      }, 0);
-      const totalUnits = frames.length + totalStoryChars;
-      setAnimationProgress(0, totalUnits);
-      storyBox.classList.add("hidden");
-      storyParagraphs.forEach(paragraph => {
-        paragraph.textContent = "";
-      });
-      let index = 0;
-      function nextFrame() {
-        if (index < frames.length) {
-          frames[index].classList.add("active");
-          index += 1;
-          setAnimationProgress(index, totalUnits);
-          animationTimer = window.setTimeout(nextFrame, 650);
-        } else {
-          animationTimer = null;
-          runStoryTypewriter();
-        }
-      }
-      nextFrame();
     }
 
     function setTool(tool) {
@@ -758,13 +782,14 @@
 
     function updateDirt() {
       const visibleDirt = Math.max(0, Math.min(160, dirt));
+      const meterPercent = Math.max(0, Math.min(100, visibleDirt));
       const fullyClean = visibleDirt <= 2 && !usingHand;
-      const opacity = fullyClean ? 0 : 0.15 + Math.min(visibleDirt, 100) / 100 * 0.8;
+      const opacity = fullyClean ? 0 : 0.15 + meterPercent / 100 * 0.8;
       const scale = usingHand
         ? 1.08 + visibleDirt / 100 * 0.9
         : fullyClean
           ? 0.82
-          : 0.92 + Math.min(visibleDirt, 100) / 100 * 0.12;
+          : 0.92 + meterPercent / 100 * 0.12;
       const rotate = usingHand ? Math.min(28, smearCount * 0.7) : 0;
       stain.style.opacity = opacity;
       stain.style.transform = `translate(-50%, -50%) rotate(${rotate}deg) scale(${scale})`;
@@ -775,7 +800,7 @@
           : `blur(${Math.max(0, dirt < 20 ? 1.2 : 0)}px)`;
       playArea.classList.toggle("clean-finish", fullyClean);
       meter.classList.toggle("chaos", usingHand && dirt > 100);
-      meterFill.style.width = fullyClean ? "0%" : visibleDirt + "%";
+      meterFill.style.width = fullyClean ? "0%" : meterPercent + "%";
       meterFill.style.background = dirt > 100
         ? "linear-gradient(90deg, #6a3415, #8f4517 55%, #c05f1f)"
         : dirt > 65
