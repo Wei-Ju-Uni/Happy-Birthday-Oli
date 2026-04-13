@@ -284,32 +284,18 @@
       font-size: 14px;
       line-height: 1.5;
       font-weight: 600;
-    }
-    .story-box {
-      padding: 18px 20px;
-      border: 1px solid rgba(157, 78, 221, 0.16);
-      border-radius: 22px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,240,255,0.95));
-      position: relative;
-      overflow: hidden;
-    }
-    /* noinspection CssUnusedSymbol */
-    .story-box.hidden {
-      display: none;
-    }
-    #storyBox {
       font-family: "Courier New", "American Typewriter", "Liberation Mono", monospace;
       letter-spacing: 0.02em;
     }
-    .story-box::before {
-      content: "";
-      position: absolute;
-      inset: 0 auto 0 0;
-      width: 6px;
-      background: linear-gradient(180deg, var(--primary), #d7a4ff);
-    }
-    .story-box p + p {
-      margin-top: 12px;
+    .animation-outro {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+      font-weight: 600;
+      font-family: "Courier New", "American Typewriter", "Liberation Mono", monospace;
+      letter-spacing: 0.02em;
+      min-height: 48px;
     }
     .tool-list {
       grid-template-columns: 1fr;
@@ -570,24 +556,20 @@
           <div class="frame" id="frame1">
             <img src="Oliver_sprint.png" alt="Oliver sprinting to the toilet">
             <div class="frame-title">Turbo Mode Activated</div>
-            <div class="frame-copy">Oliver felt the rumble of destiny and sprinted like a true hero.</div>
+            <div class="frame-copy" data-story-text="Oliver felt the rumble of destiny and activated turbo mode. He sprinted to the toilet like a true hero, fighting for his life and for the safety of everyone nearby."></div>
           </div>
           <div class="frame" id="frame2">
             <img src="Oliver_toilet.png" alt="Oliver safely reaching the toilet">
             <div class="frame-title">Just In Time</div>
-            <div class="frame-copy">He made it, sat down, and found absolute inner peace at last.</div>
+            <div class="frame-copy" data-story-text="He made it just in time, sat down, and achieved absolute inner peace."></div>
           </div>
           <div class="frame" id="frame3">
             <img src="Oliver_poop.png" alt="Oliver's proud masterpiece">
             <div class="frame-title">Mission Complete</div>
-            <div class="frame-copy">A proud little masterpiece appeared, looking way too pleased with itself.</div>
+            <div class="frame-copy" data-story-text="A few moments later, his masterpiece appeared: a proud little poop with Oliver's own face, looking way too pleased with itself."></div>
           </div>
         </div>
-        <div class="story-box sub" id="storyBox">
-          <p data-story-text="Oliver felt the rumble of destiny and activated turbo mode. He sprinted to the toilet like a true hero, fighting for his life and for the safety of everyone nearby."></p>
-          <p data-story-text="He made it just in time, sat down, and achieved absolute inner peace. A few moments later, his masterpiece appeared: a proud little poop with Oliver's own face, looking way too pleased with itself."></p>
-          <p data-story-text="So the legend says: Oliver did not simply go to the toilet. Oliver completed a mission."></p>
-        </div>
+        <p class="animation-outro" id="animationOutro" data-story-text="So the legend says: Oliver did not simply go to the toilet. Oliver completed a mission."></p>
         <div class="btns">
           <button class="primary" id="nextToGame">Wipe Butt</button>
         </div>
@@ -656,8 +638,6 @@
     const resultTitle = document.getElementById("resultTitle");
     const resultText = document.getElementById("resultText");
     const playAgainBtn = document.getElementById("playAgainBtn");
-    const storyBox = document.getElementById("storyBox");
-    const storyParagraphs = Array.from(document.querySelectorAll("#storyBox p"));
     const animationProgressFill = document.getElementById("animationProgressFill");
     const animationProgressLabel = document.getElementById("animationProgressLabel");
     const introOliver = document.getElementById("introOliver");
@@ -665,6 +645,8 @@
     const goToPoopBtn = document.getElementById("goToPoop");
     const sayNoBtn = document.getElementById("sayNoBtn");
     const frames = ["frame1", "frame2", "frame3"].map(id => document.getElementById(id));
+    const frameCopies = Array.from(document.querySelectorAll(".frame-copy"));
+    const animationOutro = document.getElementById("animationOutro");
 
     let currentTool = "paper";
     let dirt = 100;
@@ -748,6 +730,12 @@
       progressAnimationFrame = window.requestAnimationFrame(tick);
     }
 
+    function setFrameCopy(frameIndex, text) {
+      if (frameCopies[frameIndex]) {
+        frameCopies[frameIndex].textContent = text;
+      }
+    }
+
     function runAnimation() {
       clearAnimationTimer();
       clearStoryTyping();
@@ -756,18 +744,18 @@
       showScene("animation");
       setStatus("Pooping...");
       frames.forEach(frame => frame.classList.remove("active"));
-      storyBox.classList.add("hidden");
-      storyParagraphs.forEach(paragraph => {
-        paragraph.textContent = "";
+      frameCopies.forEach(copy => {
+        copy.textContent = "";
       });
+      animationOutro.textContent = "";
 
       let index = 0;
-      const totalStoryChars = storyParagraphs.reduce((sum, paragraph) => {
-        return sum + (paragraph.dataset.storyText || "").length;
-      }, 0);
+      const totalStoryChars = frameCopies.reduce((sum, copy) => {
+        return sum + (copy.dataset.storyText || "").length;
+      }, 0) + (animationOutro.dataset.storyText || "").length;
       const frameDisplayDuration = 650;
       const delayBetweenFrames = 800;
-      const totalDuration = frames.length * frameDisplayDuration + totalStoryChars * 22 + frames.length * delayBetweenFrames;
+      const totalDuration = frames.length * frameDisplayDuration + totalStoryChars * 35 + frames.length * delayBetweenFrames;
       startAnimationProgress(totalDuration);
 
       function nextStep() {
@@ -778,6 +766,15 @@
             typeStoryParagraphSmooth(index, () => {
               index += 1;
               animationTimer = window.setTimeout(nextStep, delayBetweenFrames);
+            });
+          }, frameDisplayDuration);
+        } else if (index === frames.length) {
+          animationTimer = window.setTimeout(() => {
+            typeOutroText(() => {
+              index += 1;
+              animationTimer = null;
+              clearProgressAnimation();
+              setAnimationProgress(100);
             });
           }, frameDisplayDuration);
         } else {
@@ -791,8 +788,7 @@
     }
 
     function typeStoryParagraphSmooth(paragraphIndex, callback) {
-      storyBox.classList.remove("hidden");
-      const storyText = storyParagraphs[paragraphIndex].dataset.storyText || "";
+      const storyText = frameCopies[paragraphIndex].dataset.storyText || "";
       let charIndex = 0;
 
       function typeNextCharacter() {
@@ -802,10 +798,30 @@
           return;
         }
 
-        storyParagraphs[paragraphIndex].textContent = storyText.slice(0, charIndex + 1);
+        const typedText = storyText.slice(0, charIndex + 1);
+        setFrameCopy(paragraphIndex, typedText);
         charIndex += 1;
 
-        storyTypingTimer = window.setTimeout(typeNextCharacter, 22);
+        storyTypingTimer = window.setTimeout(typeNextCharacter, 35);
+      }
+
+      typeNextCharacter();
+    }
+
+    function typeOutroText(callback) {
+      const storyText = animationOutro.dataset.storyText || "";
+      let charIndex = 0;
+
+      function typeNextCharacter() {
+        if (charIndex >= storyText.length) {
+          storyTypingTimer = null;
+          if (callback) callback();
+          return;
+        }
+
+        animationOutro.textContent = storyText.slice(0, charIndex + 1);
+        charIndex += 1;
+        storyTypingTimer = window.setTimeout(typeNextCharacter, 35);
       }
 
       typeNextCharacter();
