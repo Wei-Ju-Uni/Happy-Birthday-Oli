@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clean Butt</title>
+  <style>
+    :root {
+      --bg-top: #f0ddff;
+      --bg-bottom: #d8b2ff;
+      --panel: rgba(255,255,255,0.78);
+      --panel-border: rgba(255,255,255,0.72);
+      --card-bg: rgba(255, 248, 255, 0.92);
+      --card-border: rgba(173, 122, 214, 0.22);
+      --text: #45225b;
+      --muted: #7d648f;
+      --primary: #8d3df2;
+      --primary-dark: #6f27cd;
+      --accent-soft: #f4e7ff;
+      --shadow: 0 24px 70px rgba(102, 50, 145, 0.16);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: "Trebuchet MS", "Avenir Next", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.55), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(255,255,255,0.35), transparent 24%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+    }
+    .app {
+      width: min(920px, 100%);
+      overflow: visible;
+      border: 1px solid var(--panel-border);
+      border-radius: 32px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .topbar, .hero, .animation-stage, .game-grid, .btns, .tool-list, .play-area-wrap { display: grid; gap: 18px; }
+    .topbar {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      padding: 22px 26px;
+      background: linear-gradient(90deg, rgba(142, 61, 242, 0.88), rgba(208, 151, 255, 0.92));
+    }
+    .title {
+      font-size: clamp(28px, 4vw, 34px);
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      color: #ffffff;
+      text-shadow: 0 2px 12px rgba(72, 18, 116, 0.26);
+    }
+    .badge {
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.9);
+      font-weight: 700;
+      color: #5f3377;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+    }
+    .scene { display: none; padding: 30px; }
+    .scene.active { display: block; }
+    #sceneGame.active { overflow: visible; }
+    .hero, .game-grid { grid-template-columns: 1.2fr 1fr; align-items: stretch; }
+    .game-grid { grid-template-columns: minmax(260px, 280px) 1fr; align-items: start; }
+    .card, .reaction {
+      padding: 24px;
+      border: 1px solid var(--card-border);
+      border-radius: 26px;
+      background: var(--card-bg);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.95);
+    }
+    .card {
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h2, h3 { margin-bottom: 0; }
+    p { margin-bottom: 0; }
+    h2 {
+      font-size: clamp(28px, 4vw, 36px);
+      line-height: 1.04;
+    }
+    h3 {
+      font-size: 23px;
+      line-height: 1.1;
+    }
+    .sub { color: var(--muted); line-height: 1.7; font-weight: 600; }
+    .big-figure {
+      position: relative;
+      aspect-ratio: 1;
+      overflow: hidden;
+      border: 1px solid rgba(163, 102, 208, 0.18);
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 50% 24%, rgba(255,255,255,0.95) 0%, rgba(248,230,255,0.95) 42%, rgba(226,191,255,0.92) 100%);
+    }
+    .speech {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      max-width: 190px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: white;
+      font-weight: 700;
+      color: #7a2cc2;
+      box-shadow: 0 10px 24px rgba(103, 52, 143, 0.14);
+    }
+    .man, .butt {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+    .man { font-size: 140px; }
+    .man img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .butt {
+      padding: 0;
+    }
+    .butt img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .btns {
+      grid-template-columns: repeat(auto-fit, minmax(180px, max-content));
+      justify-content: start;
+      align-items: stretch;
+    }
+    button, .tool {
+      border: none;
+      border-radius: 18px;
+      padding: 14px 18px;
+      font-size: 16px;
+      font-weight: 800;
+      box-shadow: 0 12px 24px rgba(91, 47, 133, 0.12);
+      line-height: 1.5;
+    }
+    button {
+      min-height: 52px;
+      width: 100%;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+    }
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 28px rgba(91, 47, 133, 0.18);
+    }
+    button:active { transform: translateY(1px); }
+    .primary {
+      background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+      color: white;
+    }
+    .secondary {
+      background: #fff;
+      color: #5f3377;
+      border: 1px solid rgba(157, 78, 221, 0.16);
+    }
+    .danger {
+      background: linear-gradient(180deg, #85516f, #60384f);
+      color: white;
+    }
+    .animation-stage {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 6px;
+      align-items: stretch;
+    }
+    .frame {
+      min-height: 0;
+      padding: 18px 18px 16px;
+      text-align: center;
+      opacity: 0.35;
+      transform: scale(0.98);
+      border: 1px solid rgba(157, 78, 221, 0.16);
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(245,233,255,0.92));
+      box-shadow: 0 14px 30px rgba(98, 55, 135, 0.08);
+      transition: 0.25s ease;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      min-width: 0;
+    }
+    .frame.active {
+      opacity: 1;
+      transform: scale(1);
+      border-color: rgba(157, 78, 221, 0.45);
+      background: linear-gradient(180deg, rgba(255,255,255,1), rgba(241,226,255,1));
+      box-shadow: 0 16px 36px rgba(110, 62, 151, 0.14);
+    }
+    .frame img {
+      max-width: 100%;
+      width: 100%;
+      height: 220px;
+      object-fit: contain;
+      margin: 0 auto;
+      display: block;
+    }
+    .frame-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #5f3377;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .frame-copy {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+      font-weight: 600;
+    }
+    .story-box {
+      padding: 18px 20px;
+      border: 1px solid rgba(157, 78, 221, 0.16);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,240,255,0.95));
+      position: relative;
+      overflow: hidden;
+    }
+    .story-box::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 6px;
+      background: linear-gradient(180deg, var(--primary), #d7a4ff);
+    }
+    .story-box p + p {
+      margin-top: 12px;
+    }
+    .tool-list { gap: 14px; }
+    .tool {
+      cursor: pointer;
+      text-align: left;
+      border: 2px solid rgba(157, 78, 221, 0.1);
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(250,243,255,0.96));
+      width: 100%;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+    }
+    .tool:hover {
+      transform: translateY(-1px);
+      border-color: rgba(157, 78, 221, 0.28);
+      box-shadow: 0 16px 28px rgba(91, 47, 133, 0.12);
+    }
+    .tool img {
+      width: 74px;
+      height: 74px;
+      margin-bottom: 8px;
+      object-fit: contain;
+      display: block;
+    }
+    .tool-label {
+      display: block;
+      font-size: 16px;
+      font-weight: 800;
+      color: #4a2a5f;
+    }
+    .tool.selected {
+      border-color: var(--primary);
+      background: linear-gradient(180deg, #f7efff, #f0e1ff);
+      box-shadow: 0 18px 30px rgba(120, 61, 183, 0.16);
+    }
+    .tool small { display: block; margin-top: 6px; color: var(--muted); font-weight: 600; line-height: 1.6; font-size: 14px; }
+    .meter {
+      height: 18px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #f1defa, #ead0f8);
+      border: 1px solid rgba(157, 78, 221, 0.08);
+    }
+    .meter.chaos {
+      overflow: visible;
+    }
+    .meter-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #7f4b23, #b46b31);
+      transition: width 0.15s linear, background 0.15s linear;
+      border-radius: 999px;
+    }
+    .meter.chaos .meter-fill {
+      box-shadow: 0 0 0 4px rgba(116, 65, 31, 0.14), 12px 0 24px rgba(116, 65, 31, 0.22);
+    }
+    .play-area {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      min-height: 420px;
+      overflow: hidden;
+      border: 2px solid rgba(169, 112, 213, 0.18);
+      border-radius: 32px;
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,0.52), transparent 34%),
+        linear-gradient(180deg, #ffeaf8 0%, #ffd9f4 100%);
+      user-select: none;
+      touch-action: none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
+    }
+    .play-area.chaos {
+      overflow: visible;
+    }
+    .stain {
+      position: absolute;
+      left: 50%;
+      top: 52%;
+      width: 180px;
+      height: 120px;
+      border-radius: 50% 48% 46% 52% / 58% 50% 55% 52%;
+      background: radial-gradient(circle at 50% 40%, rgba(120,65,29,0.95), rgba(99,53,22,0.96) 55%, rgba(82,43,18,0.98));
+      transform: translate(-50%, -50%);
+      transition: opacity 0.15s linear, filter 0.15s linear, transform 0.15s ease;
+      z-index: 3;
+    }
+    .smear, .cursor-tool { position: absolute; pointer-events: none; }
+    .smear {
+      border-radius: 999px;
+      background: rgba(92, 45, 16, 0.26);
+      transform: translate(-50%, -50%) rotate(var(--r));
+    }
+    .cursor-tool {
+      display: none;
+      width: 54px;
+      height: 54px;
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0 8px 10px rgba(0,0,0,0.15));
+      z-index: 5;
+    }
+    .cursor-tool img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .reaction { min-height: 92px; line-height: 1.6; font-weight: 800; }
+    .result-box {
+      display: grid;
+      gap: 16px;
+      justify-items: center;
+      padding: 30px 24px 18px;
+      text-align: center;
+    }
+    .result-face {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: min(260px, 100%);
+      min-height: 180px;
+      margin-bottom: 10px;
+    }
+    .result-face img {
+      max-width: 100%;
+      max-height: 180px;
+      object-fit: contain;
+      display: block;
+    }
+    @media (max-width: 760px) {
+      .topbar, .hero, .animation-stage, .game-grid { grid-template-columns: 1fr; }
+      .topbar { text-align: center; }
+      .btns { grid-template-columns: 1fr; }
+      .butt { padding: 0; }
+      .play-area { min-height: 0; }
+      .stain { width: 140px; height: 95px; }
+      .frame { padding: 16px; }
+      .frame img { height: 160px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="title">Butt Cleaning Mission✨</div>
+      <div class="badge" id="statusBadge">Status: Standby</div>
+    </div>
+
+    <section class="scene active" id="sceneIntro">
+      <div class="hero">
+        <div class="card">
+          <div class="badge" style="width:max-content;">Special Toilet Operations</div>
+          <h2>Uh oh stinky..... Oliver wants to go to the toilet</h2>
+          <p class="sub">Should we send him to the toilet?</p>
+          <div class="btns">
+            <button class="primary" id="goToPoop">Go Poop</button>
+          </div>
+        </div>
+        <div class="big-figure">
+          <div class="speech">EMERGENCY!</div>
+          <div class="man"><img src="Oliver_hehe.png" alt="Boyfriend"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" id="sceneAnimation">
+      <div class="card">
+        <h2 style="text-align:center;">Oli Goes To The Toilet</h2>
+        <div class="animation-stage">
+          <div class="frame" id="frame1">
+            <img src="Oliver_sprint.png" alt="Oliver sprinting to the toilet">
+            <div class="frame-title">Turbo Mode Activated</div>
+            <div class="frame-copy">Oliver felt the rumble of destiny and sprinted like a true hero.</div>
+          </div>
+          <div class="frame" id="frame2">
+            <img src="Oliver_toilet.png" alt="Oliver safely reaching the toilet">
+            <div class="frame-title">Just In Time</div>
+            <div class="frame-copy">He made it, sat down, and found absolute inner peace at last.</div>
+          </div>
+          <div class="frame" id="frame3">
+            <img src="Oliver_poop.png" alt="Oliver's proud masterpiece">
+            <div class="frame-title">Mission Complete</div>
+            <div class="frame-copy">A proud little masterpiece appeared, looking way too pleased with itself.</div>
+          </div>
+        </div>
+        <div class="story-box sub">
+          <p>Oliver felt the rumble of destiny and activated turbo mode. He sprinted to the toilet like a true hero, fighting for his life and for the safety of everyone nearby.</p>
+          <p>He made it just in time, sat down, and achieved absolute inner peace. A few moments later, his masterpiece appeared: a proud little poop with Oliver's own face, looking way too pleased with itself.</p>
+          <p>So the legend says: Oliver did not simply go to the toilet. Oliver completed a mission.</p>
+        </div>
+        <div class="btns">
+          <button class="primary" id="nextToGame">Wipe Butt</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" id="sceneGame">
+      <div class="game-grid">
+        <div class="card">
+          <div class="badge" style="width:max-content;">Tool Selection</div>
+          <h3>Choose a Tool</h3>
+          <div class="tool-list">
+            <div class="tool selected" data-tool="paper"><img src="paper.png" alt="Toilet paper"><span class="tool-label">Toilet Paper</span><small>You're trying, but it's not enough. Gets lighter but usually incomplete.</small></div>
+            <div class="tool" data-tool="wipe"><img src="wet.png" alt="Wet wipes"><span class="tool-label">Wet Wipes</span><small>The correct choice. Steady cleaning, best chance for a good ending.</small></div>
+            <div class="tool" data-tool="hand"><img src="hand.png" alt="Bare hand"><span class="tool-label">Bare Hand</span><small>Disaster mode. Makes everything worse, leads straight to the absurd ending.</small></div>
+          </div>
+          <div class="btns">
+            <button class="primary" id="finishBtn">Done Scrubbing, Inspect Me</button>
+          </div>
+        </div>
+        <div class="play-area-wrap">
+          <div class="card">
+            <strong>Residue Level</strong>
+            <div class="meter" style="margin-top:10px;"><div class="meter-fill" id="meterFill"></div></div>
+          </div>
+          <div class="play-area" id="playArea">
+            <div class="butt"><img src="Oliver_ass.png" alt="Oliver butt"></div>
+            <div class="stain" id="stain"></div>
+            <div class="cursor-tool" id="cursorTool"><img src="wet.png" alt="Current tool"></div>
+          </div>
+          <div class="reaction" id="reactionBox">Please select a tool first, then click and drag on the game area. Wet wipes clean the best, toilet paper barely helps, and your bare hand makes it worse.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" id="sceneResult">
+      <div class="result-box">
+        <div class="result-face" id="resultFace"><img src="Weiju_ok.png" alt="Inspection reaction"></div>
+        <h2 id="resultTitle">Inspection Results</h2>
+        <p class="sub" id="resultText"></p>
+        <div class="btns" style="justify-content:center; width:min(220px, 100%);">
+          <button class="primary" id="playAgainBtn">Play Again</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const scenes = {
+      intro: document.getElementById("sceneIntro"),
+      animation: document.getElementById("sceneAnimation"),
+      game: document.getElementById("sceneGame"),
+      result: document.getElementById("sceneResult")
+    };
+
+    const statusBadge = document.getElementById("statusBadge");
+    const reactionBox = document.getElementById("reactionBox");
+    const playArea = document.getElementById("playArea");
+    const stain = document.getElementById("stain");
+    const meter = document.querySelector(".meter");
+    const meterFill = document.getElementById("meterFill");
+    const cursorTool = document.getElementById("cursorTool");
+    const resultFace = document.getElementById("resultFace");
+    const resultTitle = document.getElementById("resultTitle");
+    const resultText = document.getElementById("resultText");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+    const frames = ["frame1", "frame2", "frame3"].map(id => document.getElementById(id));
+
+    let currentTool = "paper";
+    let dirt = 100;
+    let usingHand = false;
+    let isPointerDown = false;
+    let activePointerId = null;
+    let smearCount = 0;
+    let animationTimer = null;
+    let resultAction = "home";
+
+    function showScene(name) {
+      Object.values(scenes).forEach(scene => scene.classList.remove("active"));
+      scenes[name].classList.add("active");
+    }
+
+    function setStatus(text) {
+      statusBadge.textContent = "Status: " + text;
+    }
+
+    function clearAnimationTimer() {
+      if (animationTimer !== null) {
+        clearTimeout(animationTimer);
+        animationTimer = null;
+      }
+    }
+
+    function endPointerInteraction() {
+      isPointerDown = false;
+      activePointerId = null;
+      cursorTool.style.display = "none";
+    }
+
+    function runAnimation() {
+      clearAnimationTimer();
+      showScene("animation");
+      setStatus("Pooping...");
+      frames.forEach(frame => frame.classList.remove("active"));
+      let index = 0;
+      function nextFrame() {
+        if (index < frames.length) {
+          frames[index].classList.add("active");
+          index += 1;
+          animationTimer = window.setTimeout(nextFrame, 650);
+        } else {
+          animationTimer = null;
+        }
+      }
+      nextFrame();
+    }
+
+    function setTool(tool) {
+      currentTool = tool;
+      document.querySelectorAll(".tool").forEach(el => {
+        el.classList.toggle("selected", el.dataset.tool === tool);
+      });
+      const map = {
+        wipe: ["wet.png", "Wet wipes mode activated. Now we're talking like a civilized person."],
+        paper: ["paper.png", "Toilet paper mode activated. You're trying, but I'm not holding my breath."],
+        hand: ["hand.png", "Bare hand mode activated. Are you trying to make this an international incident?"]
+      };
+      cursorTool.innerHTML = `<img src="${map[tool][0]}" alt="${tool} tool">`;
+      reactionBox.textContent = map[tool][1];
+    }
+
+    function updateDirt() {
+      const visibleDirt = Math.max(0, Math.min(160, dirt));
+      const opacity = 0.15 + Math.min(visibleDirt, 100) / 100 * 0.8;
+      const scale = usingHand
+        ? 1.08 + visibleDirt / 100 * 0.9
+        : 0.92 + Math.min(visibleDirt, 100) / 100 * 0.12;
+      const rotate = usingHand ? Math.min(28, smearCount * 0.7) : 0;
+      stain.style.opacity = opacity;
+      stain.style.transform = `translate(-50%, -50%) rotate(${rotate}deg) scale(${scale})`;
+      stain.style.filter = usingHand
+        ? `blur(${Math.min(13, smearCount * 0.22)}px) saturate(1.28)`
+        : `blur(${Math.max(0, dirt < 20 ? 1.2 : 0)}px)`;
+      meter.classList.toggle("chaos", usingHand && dirt > 100);
+      playArea.classList.toggle("chaos", usingHand && dirt > 100);
+      meterFill.style.width = visibleDirt + "%";
+      meterFill.style.background = dirt > 100
+        ? "linear-gradient(90deg, #6a3415, #8f4517 55%, #c05f1f)"
+        : dirt > 65
+        ? "linear-gradient(90deg, #7f4b23, #b46b31)"
+        : dirt > 25
+          ? "linear-gradient(90deg, #c0864a, #e0a968)"
+          : "linear-gradient(90deg, #ffcf8f, #ffdba9)";
+    }
+
+    function addSmear(x, y) {
+      const smear = document.createElement("div");
+      smear.className = "smear";
+      smear.style.left = x + "px";
+      smear.style.top = y + "px";
+      smear.style.width = 28 + Math.random() * 38 + "px";
+      smear.style.height = 12 + Math.random() * 18 + "px";
+      smear.style.setProperty("--r", Math.round(Math.random() * 170) + "deg");
+      playArea.appendChild(smear);
+      window.setTimeout(() => smear.remove(), 900);
+    }
+
+    function scrub(x, y) {
+      if (currentTool === "wipe") {
+        dirt = Math.max(0, dirt - 1.7);
+        usingHand = false;
+        reactionBox.textContent = dirt < 18 ? "Oh wow, it's actually clean now. Finally respectable." : "Good, you're on the right track. Keep scrubbing.";
+      } else if (currentTool === "paper") {
+        dirt = Math.max(22, dirt - 0.75);
+        usingHand = false;
+        reactionBox.textContent = "It's getting lighter, but something feels... incomplete.";
+      } else {
+        dirt = Math.min(160, dirt + 2.4);
+        usingHand = true;
+        smearCount += 1;
+        addSmear(x, y);
+        reactionBox.textContent = dirt > 110
+          ? "This has gone beyond dirty. The disaster is expanding beyond the legal limits of the frame."
+          : "What are you even doing? You're making this worse by the second.";
+      }
+      updateDirt();
+    }
+
+    function resetGame() {
+      clearAnimationTimer();
+      endPointerInteraction();
+      dirt = 100;
+      usingHand = false;
+      smearCount = 0;
+      document.querySelectorAll(".smear").forEach(el => el.remove());
+      setTool("paper");
+      updateDirt();
+      reactionBox.textContent = "Please select a tool first, then click and drag on the play area. Wet wipes clean best, toilet paper barely helps, and your hand makes things worse.";
+      setStatus("Cleaning in Progress");
+    }
+
+    function finishCheck() {
+      clearAnimationTimer();
+      endPointerInteraction();
+      showScene("result");
+      setStatus("Inspection Results Complete");
+      if (usingHand || dirt >= 90) {
+        resultAction = "retry";
+        playAgainBtn.textContent = "Try Again";
+        playAgainBtn.className = "danger";
+        resultFace.innerHTML = '<img src="Weiju_bad.png" alt="Bad cleaning result">';
+        resultTitle.textContent = "Complete Disaster";
+        resultText.textContent = "I declare this is not cleaning. You've escalated the situation. Go back and redo it right now. Don't come near me.";
+      } else if (dirt > 45) {
+        resultAction = "retry";
+        playAgainBtn.textContent = "Try Again";
+        playAgainBtn.className = "danger";
+        resultFace.innerHTML = '<img src="Weiju_bad.png" alt="Bad cleaning result">';
+        resultTitle.textContent = "How Dare You Submit This";
+        resultText.textContent = "Did you think I wouldn't notice? This is only surface effort. You're still fundamentally suspect.";
+      } else if (dirt > 10) {
+        resultAction = "retry";
+        playAgainBtn.textContent = "Try Again";
+        playAgainBtn.className = "danger";
+        resultFace.innerHTML = '<img src="Weiju_ok.png" alt="Okay cleaning result">';
+        resultTitle.textContent = "Barely Passing";
+        resultText.textContent = "I can tell you tried, but you're not my model student. Next time use the right tool from the start.";
+      } else {
+        resultAction = "home";
+        playAgainBtn.textContent = "Back Home";
+        playAgainBtn.className = "primary";
+        resultFace.innerHTML = '<img src="Weiju_wow.png" alt="Good cleaning result">';
+        resultTitle.textContent = "So Clean I'm Shocked";
+        resultText.textContent = "Excellent! This is the human condition worthy of a hug. You've performed outstandingly today. Butt alert officially lifted.";
+      }
+    }
+
+    function updateCursorPosition(event) {
+      const rect = playArea.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      cursorTool.style.left = x + "px";
+      cursorTool.style.top = y + "px";
+      return { x, y };
+    }
+
+    document.getElementById("goToPoop").addEventListener("click", runAnimation);
+    document.getElementById("finishBtn").addEventListener("click", finishCheck);
+    playAgainBtn.addEventListener("click", () => {
+      clearAnimationTimer();
+      endPointerInteraction();
+      if (resultAction === "retry") {
+        showScene("game");
+        resetGame();
+      } else {
+        showScene("intro");
+        setStatus("Standby");
+      }
+    });
+    document.querySelectorAll(".tool").forEach(el => {
+      el.addEventListener("click", () => setTool(el.dataset.tool));
+    });
+    document.getElementById("nextToGame").addEventListener("click", () => { showScene("game"); resetGame(); });
+
+    playArea.addEventListener("pointerdown", event => {
+      isPointerDown = true;
+      activePointerId = event.pointerId;
+      cursorTool.style.display = "block";
+      playArea.setPointerCapture(event.pointerId);
+      const { x, y } = updateCursorPosition(event);
+      scrub(x, y);
+    });
+
+    playArea.addEventListener("pointermove", event => {
+      if (activePointerId !== null && event.pointerId !== activePointerId) return;
+      const { x, y } = updateCursorPosition(event);
+      if (isPointerDown) scrub(x, y);
+    });
+
+    playArea.addEventListener("pointerup", endPointerInteraction);
+    playArea.addEventListener("pointercancel", endPointerInteraction);
+    playArea.addEventListener("lostpointercapture", endPointerInteraction);
+
+    setTool("paper");
+    updateDirt();
+  </script>
+</body>
+</html>
