@@ -369,6 +369,7 @@
       height: 100%;
       width: 100%;
       background: linear-gradient(90deg, #7f4b23, #b46b31);
+      transform-origin: left center;
       transition: width 0.15s linear, background 0.15s linear;
       border-radius: 999px;
     }
@@ -614,7 +615,7 @@
             <div class="sparkle-layer" id="sparkleLayer" aria-hidden="true"></div>
             <div class="cursor-tool" id="cursorTool"><img src="wet.png" alt="Current tool"></div>
           </div>
-          <div class="reaction" id="reactionBox">Please select a tool first, then click and drag on the game area. Wet wipes clean the best, toilet paper barely helps, and your bare hand makes it worse.</div>
+          <div class="reaction" id="reactionBox">Please select a tool first, then click and drag on the ASS.</div>
         </div>
       </div>
     </section>
@@ -905,6 +906,9 @@
     function updateDirt() {
       const visibleDirt = Math.max(0, Math.min(160, dirt));
       const meterPercent = Math.max(0, Math.min(100, visibleDirt));
+      const chaosMeterPercent = usingHand
+        ? Math.max(0, Math.min(240, dirt))
+        : meterPercent;
       const fullyClean = visibleDirt <= 2 && !usingHand;
       const opacity = fullyClean ? 0 : 0.15 + meterPercent / 100 * 0.8;
       const scale = usingHand
@@ -922,7 +926,7 @@
           : `blur(${Math.max(0, dirt < 20 ? 1.2 : 0)}px)`;
       playArea.classList.toggle("clean-finish", fullyClean);
       meter.classList.toggle("chaos", usingHand && dirt > 100);
-      meterFill.style.width = fullyClean ? "0%" : meterPercent + "%";
+      meterFill.style.width = fullyClean ? "0%" : chaosMeterPercent + "%";
       meterFill.style.background = dirt > 100
         ? "linear-gradient(90deg, #6a3415, #8f4517 55%, #c05f1f)"
         : dirt > 65
@@ -976,7 +980,7 @@
         usingHand = false;
         reactionBox.textContent = "It's getting lighter, but something feels... incomplete.";
       } else {
-        dirt = Math.min(160, dirt + 2.4);
+        dirt = Math.min(240, dirt + 2.4);
         usingHand = true;
         smearCount += 1;
         addSmear(x, y);
@@ -1006,7 +1010,7 @@
       playArea.classList.remove("clean-finish");
       setTool("paper");
       updateDirt();
-      reactionBox.textContent = "Please select a tool first, then click and drag on the play area. Wet wipes clean best, toilet paper barely helps, and your hand makes things worse.";
+      reactionBox.textContent = "Please select a tool first, then click and drag on the ASS.";
       setStatus("Cleaning in Progress");
     }
 
