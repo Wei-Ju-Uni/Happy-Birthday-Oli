@@ -402,7 +402,7 @@
       border-radius: 50% 48% 46% 52% / 58% 50% 55% 52%;
       background: radial-gradient(circle at 50% 40%, rgba(120,65,29,0.95), rgba(99,53,22,0.96) 55%, rgba(82,43,18,0.98));
       transform: translate(-50%, -50%);
-      transition: opacity 0.15s linear, filter 0.15s linear, transform 0.15s ease;
+      transition: opacity 0.22s linear, filter 0.28s ease, transform 0.32s ease;
       z-index: 3;
     }
     .sparkle-layer {
@@ -471,6 +471,12 @@
       border-radius: 999px;
       background: rgba(92, 45, 16, 0.26);
       transform: translate(-50%, -50%) rotate(var(--r));
+      opacity: 1;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+    .smear.cleaning-away {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(var(--r)) scale(0.7);
     }
     .cursor-tool {
       display: none;
@@ -906,28 +912,31 @@
     function updateDirt() {
       const visibleDirt = Math.max(0, Math.min(160, dirt));
       const meterPercent = Math.max(0, Math.min(100, visibleDirt));
-      const chaosMeterPercent = usingHand
-        ? Math.max(0, Math.min(240, dirt))
+      const isOverflowing = dirt > 100;
+      const activeSmearCount = document.querySelectorAll(".smear:not(.cleaning-away)").length;
+      const chaosMeterPercent = isOverflowing
+        ? Math.max(0, Math.min(140, dirt))
         : meterPercent;
       const fullyClean = visibleDirt <= 2 && !usingHand;
+      const overflowAmount = Math.max(0, dirt - 100);
+      const messBoost = Math.min(1, overflowAmount / 30);
       const opacity = fullyClean ? 0 : 0.15 + meterPercent / 100 * 0.8;
-      const scale = usingHand
-        ? 1.08 + visibleDirt / 100 * 0.9
-        : fullyClean
-          ? 0.82
-          : 0.92 + meterPercent / 100 * 0.12;
-      const rotate = usingHand ? Math.min(28, smearCount * 0.7) : 0;
+      const scale = fullyClean
+        ? 0.82
+        : 0.92 + meterPercent / 100 * 0.12 + messBoost * 0.9;
+      const rotate = fullyClean
+        ? 0
+        : Math.min(20, activeSmearCount * 0.35 + overflowAmount * 0.1);
+      const blurAmount = fullyClean
+        ? 0
+        : Math.min(6, activeSmearCount * 0.08 + overflowAmount * 0.025 + (dirt < 20 ? 1.2 : 0));
       stain.style.opacity = opacity;
       stain.style.transform = `translate(-50%, -50%) rotate(${rotate}deg) scale(${scale})`;
-      stain.style.filter = usingHand
-        ? `blur(${Math.min(13, smearCount * 0.22)}px) saturate(1.28)`
-        : fullyClean
-          ? "blur(0px)"
-          : `blur(${Math.max(0, dirt < 20 ? 1.2 : 0)}px)`;
+      stain.style.filter = `blur(${blurAmount}px) saturate(${fullyClean ? 1 : 1.08 + messBoost * 0.12})`;
       playArea.classList.toggle("clean-finish", fullyClean);
-      meter.classList.toggle("chaos", usingHand && dirt > 100);
+      meter.classList.toggle("chaos", isOverflowing);
       meterFill.style.width = fullyClean ? "0%" : chaosMeterPercent + "%";
-      meterFill.style.background = dirt > 100
+      meterFill.style.background = isOverflowing
         ? "linear-gradient(90deg, #6a3415, #8f4517 55%, #c05f1f)"
         : dirt > 65
         ? "linear-gradient(90deg, #7f4b23, #b46b31)"
@@ -960,7 +969,31 @@
       smear.style.height = 12 + Math.random() * 18 + "px";
       smear.style.setProperty("--r", Math.round(Math.random() * 170) + "deg");
       playArea.appendChild(smear);
-      window.setTimeout(() => smear.remove(), 900);
+      window.setTimeout(() => {
+        if (!smear.isConnected || smear.classList.contains("cleaning-away")) {
+          return;
+        }
+        smear.classList.add("cleaning-away");
+        window.setTimeout(() => {
+          if (smear.isConnected) {
+            smear.remove();
+            updateDirt();
+          }
+        }, 220);
+      }, 1400);
+    }
+
+    function cleanSomeSmears(amount) {
+      const smears = Array.from(document.querySelectorAll(".smear:not(.cleaning-away)")).slice(0, amount);
+      smears.forEach(smear => {
+        smear.classList.add("cleaning-away");
+        window.setTimeout(() => {
+          if (smear.isConnected) {
+            smear.remove();
+            updateDirt();
+          }
+        }, 220);
+      });
     }
 
     function scrub(x, y) {
@@ -974,10 +1007,12 @@
       if (currentTool === "wipe") {
         dirt = Math.max(0, dirt - 1.7);
         usingHand = false;
+        cleanSomeSmears(2);
         reactionBox.textContent = dirt < 18 ? "Oh wow, it's actually clean now. Finally respectable." : "Good, you're on the right track. Keep scrubbing.";
       } else if (currentTool === "paper") {
         dirt = Math.max(22, dirt - 0.75);
         usingHand = false;
+        cleanSomeSmears(1);
         reactionBox.textContent = "It's getting lighter, but something feels... incomplete.";
       } else {
         dirt = Math.min(240, dirt + 2.4);
