@@ -557,7 +557,7 @@
         </div>
         <div class="big-figure">
           <div class="speech">EMERGENCY!</div>
-          <div class="man"><img src="Oliver_hehe.png" alt="Boyfriend" id="introOliver"></div>
+          <div class="man"><img src="Oliver_hehe.webp" alt="Boyfriend" id="introOliver" decoding="async"></div>
         </div>
       </div>
     </section>
@@ -573,18 +573,18 @@
         </div>
         <div class="animation-stage">
           <div class="frame" id="frame1">
-            <img src="Oliver_sprint.png" alt="Oliver sprinting to the toilet">
+            <img src="Oliver_sprint.webp" alt="Oliver sprinting to the toilet" loading="lazy" decoding="async">
             <div class="frame-title">Turbo Mode Activated</div>
             <div class="frame-copy" data-story-text="Oliver felt the rumble of destiny and activated turbo mode. He sprinted to the toilet like a true hero, fighting for his life and for the safety of everyone nearby."></div>
           </div>
           <div class="frame" id="frame2">
-            <img src="Oliver_toilet.png" alt="Oliver safely reaching the toilet">
+            <img src="Oliver_toilet.webp" alt="Oliver safely reaching the toilet" loading="lazy" decoding="async">
             <div class="frame-title">Just In Time</div>
             <div class="frame-copy" data-story-text="He made it just in time, sat down, and achieved absolute inner peace."></div>
             <button class="frame-action hidden" id="poopButton" type="button">Poop</button>
           </div>
           <div class="frame" id="frame3">
-            <img src="Oliver_poop.png" alt="Oliver's proud masterpiece">
+            <img src="Oliver_poop.webp" alt="Oliver's proud masterpiece" loading="lazy" decoding="async">
             <div class="frame-title">Mission Complete</div>
             <div class="frame-copy" data-story-text="A few moments later, his masterpiece appeared: a proud little poop with Oliver's own face, looking way too pleased with itself."></div>
           </div>
@@ -602,9 +602,9 @@
           <div class="badge" style="width:max-content;">Tool Selection</div>
           <h3>Choose a Tool</h3>
           <div class="tool-list">
-            <div class="tool selected" data-tool="paper"><img src="paper.png" alt="Toilet paper"><span class="tool-label">Toilet Paper</span></div>
-            <div class="tool" data-tool="wipe"><img src="wet.png" alt="Wet wipes"><span class="tool-label">Wet Wipes</span></div>
-            <div class="tool" data-tool="hand"><img src="hand.png" alt="Bare hand"><span class="tool-label">Bare Hand</span></div>
+            <div class="tool selected" data-tool="paper"><img src="paper.webp" alt="Toilet paper" loading="lazy" decoding="async"><span class="tool-label">Toilet Paper</span></div>
+            <div class="tool" data-tool="wipe"><img src="wet.webp" alt="Wet wipes" loading="lazy" decoding="async"><span class="tool-label">Wet Wipes</span></div>
+            <div class="tool" data-tool="hand"><img src="hand.webp" alt="Bare hand" loading="lazy" decoding="async"><span class="tool-label">Bare Hand</span></div>
           </div>
           <div class="btns">
             <button class="primary" id="finishBtn">Done Scrubbing, Inspect Me</button>
@@ -616,10 +616,10 @@
             <div class="meter" style="margin-top:10px;"><div class="meter-fill" id="meterFill"></div></div>
           </div>
           <div class="play-area" id="playArea">
-            <div class="butt"><img src="Oliver_ass.png" alt="Oliver butt"></div>
+            <div class="butt"><img src="Oliver_ass.webp" alt="Oliver butt" loading="lazy" decoding="async"></div>
             <div class="stain" id="stain"></div>
             <div class="sparkle-layer" id="sparkleLayer" aria-hidden="true"></div>
-            <div class="cursor-tool" id="cursorTool"><img src="wet.png" alt="Current tool"></div>
+            <div class="cursor-tool" id="cursorTool"><img src="wet.webp" alt="Current tool" decoding="async"></div>
           </div>
           <div class="reaction" id="reactionBox">Please select a tool first, then click and drag on the ASS.</div>
         </div>
@@ -628,7 +628,7 @@
 
     <section class="scene" id="sceneResult">
       <div class="result-box">
-        <div class="result-face" id="resultFace"><img src="Weiju_ok.png" alt="Inspection reaction"></div>
+        <div class="result-face" id="resultFace"><img src="Weiju_ok.webp" alt="Inspection reaction" loading="lazy" decoding="async"></div>
         <h2 id="resultTitle">Inspection Results</h2>
         <p class="sub" id="resultText"></p>
         <div class="btns" style="justify-content:center; width:min(220px, 100%);">
@@ -732,7 +732,7 @@
 
     function setIntroDecisionState(isNo) {
       introSaysNo = isNo;
-      introOliver.src = isNo ? "Oliver_no.png" : "Oliver_hehe.png";
+      introOliver.src = isNo ? "Oliver_no.webp" : "Oliver_hehe.webp";
       sayNoBtn.textContent = isNo ? "Yes" : "No";
       sayNoBtn.className = isNo ? "toggle-yes" : "toggle-no";
       introActions.classList.toggle("no-active", isNo);
@@ -901,9 +901,9 @@
         el.classList.toggle("selected", el.dataset.tool === tool);
       });
       const map = {
-        wipe: ["wet.png", "Wet wipes mode activated. Now we're talking like a civilized person."],
-        paper: ["paper.png", "Toilet paper mode activated. You're trying, but I'm not holding my breath."],
-        hand: ["hand.png", "Bare hand mode activated. Are you trying to make this an international incident?"]
+        wipe: ["wet.webp", "Wet wipes mode activated. Now we're talking like a civilized person."],
+        paper: ["paper.webp", "Toilet paper mode activated. You're trying, but I'm not holding my breath."],
+        hand: ["hand.webp", "Bare hand mode activated. Are you trying to make this an international incident?"]
       };
       cursorTool.innerHTML = `<img src="${map[tool][0]}" alt="${tool} tool">`;
       reactionBox.textContent = map[tool][1];
@@ -1059,28 +1059,28 @@
         resultAction = "retry";
         playAgainBtn.textContent = "Try Again";
         playAgainBtn.className = "danger";
-        resultFace.innerHTML = '<img src="Weiju_bad.png" alt="Bad cleaning result">';
+        resultFace.innerHTML = '<img src="Weiju_bad.webp" alt="Bad cleaning result" decoding="async">';
         resultTitle.textContent = "Complete Disaster";
         resultText.textContent = "I declare this is not cleaning. You've escalated the situation. Go back and redo it right now. Don't come near me.";
       } else if (dirt > 45) {
         resultAction = "retry";
         playAgainBtn.textContent = "Try Again";
         playAgainBtn.className = "danger";
-        resultFace.innerHTML = '<video src="Weiju_dare.mp4" autoplay loop muted playsinline></video>';
+        resultFace.innerHTML = '<video src="Weiju_dare_small.mp4" autoplay loop muted playsinline preload="metadata"></video>';
         resultTitle.textContent = "How Dare You Submit This";
         resultText.textContent = "Did you think I wouldn't notice? This is only surface effort. Are you a spy from the Poo Poo Kingdom?";
       } else if (dirt > 10) {
         resultAction = "retry";
         playAgainBtn.textContent = "Try Again";
         playAgainBtn.className = "danger";
-        resultFace.innerHTML = '<img src="Weiju_ok.png" alt="Okay cleaning result">';
+        resultFace.innerHTML = '<img src="Weiju_ok.webp" alt="Okay cleaning result" decoding="async">';
         resultTitle.textContent = "Barely Passing";
         resultText.textContent = "I can tell you tried, next time use the right tool from the start. Pipi de da bian still cho cho de.";
       } else {
         resultAction = "home";
         playAgainBtn.textContent = "Back Home";
         playAgainBtn.className = "primary";
-        resultFace.innerHTML = '<img src="Weiju_wow.png" alt="Good cleaning result">';
+        resultFace.innerHTML = '<img src="Weiju_wow.webp" alt="Good cleaning result" decoding="async">';
         resultTitle.textContent = "So Clean I'm Shocked";
         resultText.textContent = "Hao Bang!! You've performed outstandingly today. Da bian alert officially lifted.";
       }
