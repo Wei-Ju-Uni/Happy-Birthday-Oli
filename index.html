@@ -43,6 +43,16 @@
       box-shadow: var(--shadow);
       backdrop-filter: blur(14px);
     }
+    .app.start-mode {
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+    }
+    .app.start-mode .topbar {
+      display: none;
+    }
     .topbar, .hero, .animation-stage, .game-grid, .btns, .tool-list, .play-area-wrap { display: grid; gap: 18px; }
     .topbar {
       grid-template-columns: 1fr auto;
@@ -68,6 +78,15 @@
     }
     .scene { display: none; padding: 30px; }
     .scene.active { display: block; }
+    .scene.start-screen {
+      display: none;
+      min-height: 620px;
+      padding: 0;
+      align-items: center;
+    }
+    .scene.start-screen.active {
+      display: grid;
+    }
     #sceneGame.active { overflow: visible; }
     .hero, .game-grid { grid-template-columns: 1.2fr 1fr; align-items: stretch; }
     .game-grid { grid-template-columns: minmax(300px, 340px) 1fr; align-items: start; }
@@ -95,6 +114,164 @@
       line-height: 1.1;
     }
     .sub { color: var(--muted); line-height: 1.7; font-weight: 600; }
+    .start-card {
+      width: min(560px, 100%);
+      margin: 0 auto;
+      text-align: center;
+      justify-items: center;
+    }
+    .start-card.start-secret {
+      width: 100%;
+      min-height: 620px;
+      gap: 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .start-weiju-gallery {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .start-heading {
+      position: absolute;
+      top: 34px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: grid;
+      gap: 8px;
+      text-align: center;
+      z-index: 30;
+      pointer-events: none;
+    }
+    .start-heading h1 {
+      margin: 0;
+      font-size: clamp(34px, 6vw, 58px);
+      line-height: 0.95;
+      letter-spacing: 0.02em;
+      color: #ffffff;
+      text-shadow: 0 8px 24px rgba(95, 44, 142, 0.28);
+    }
+    .start-heading p {
+      margin: 0;
+      font-size: clamp(14px, 2vw, 18px);
+      font-weight: 800;
+      color: rgba(74, 42, 95, 0.78);
+    }
+    .start-piece {
+      touch-action: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      cursor: grab;
+    }
+    .start-piece.dragging {
+      cursor: grabbing;
+    }
+    .start-weiju {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: clamp(108px, 14vw, 138px);
+      height: clamp(108px, 14vw, 138px);
+      object-fit: cover;
+      border-radius: 26px;
+      opacity: 0.9;
+      filter: drop-shadow(0 16px 28px rgba(95, 44, 142, 0.16));
+      animation: start-float 7.5s ease-in-out infinite alternate;
+      pointer-events: auto;
+    }
+    .start-weiju.weiju1 {
+      --float-x: 12px;
+      --float-y: -10px;
+      --float-r: -5deg;
+      animation-duration: 7.6s;
+      animation-delay: -1.5s;
+    }
+    .start-weiju.weiju2 {
+      --float-x: -12px;
+      --float-y: 12px;
+      --float-r: 6deg;
+      animation-duration: 7s;
+      animation-delay: -3.1s;
+    }
+    .start-weiju.weiju3 {
+      --float-x: 10px;
+      --float-y: 14px;
+      --float-r: -5deg;
+      animation-duration: 8.2s;
+      animation-delay: -2s;
+    }
+    .start-weiju.weiju4 {
+      --float-x: -10px;
+      --float-y: -12px;
+      --float-r: 5deg;
+      animation-duration: 7.2s;
+      animation-delay: -4.1s;
+    }
+    .start-weiju.weiju5 {
+      --float-x: 12px;
+      --float-y: -14px;
+      --float-r: -6deg;
+      animation-duration: 8s;
+      animation-delay: -2.6s;
+    }
+    .start-weiju.weiju6 {
+      --float-x: -12px;
+      --float-y: 12px;
+      --float-r: 6deg;
+      animation-duration: 7.5s;
+      animation-delay: -5s;
+    }
+    @keyframes start-float {
+      0% {
+        transform: translate(calc(-50% + var(--stack-x, 0px) + var(--drag-x, 0px)), calc(-50% + var(--stack-y, 0px) + var(--drag-y, 0px))) rotate(var(--stack-r, 0deg)) scale(0.98);
+      }
+      100% {
+        transform: translate(calc(-50% + var(--stack-x, 0px) + var(--drag-x, 0px) + var(--float-x)), calc(-50% + var(--stack-y, 0px) + var(--drag-y, 0px) + var(--float-y))) rotate(calc(var(--stack-r, 0deg) + var(--float-r))) scale(1.04);
+      }
+    }
+    .start-oli-button {
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
+      min-height: 0;
+      width: clamp(138px, 18vw, 176px);
+      height: clamp(138px, 18vw, 176px);
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 1;
+      border-radius: 34px;
+      overflow: hidden;
+      animation: start-float-oli 8s ease-in-out infinite alternate;
+    }
+    .start-oli-button:hover {
+      filter: drop-shadow(0 16px 28px rgba(95, 44, 142, 0.18));
+      box-shadow: none;
+    }
+    .start-oli-button img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    @keyframes start-float-oli {
+      0% {
+        transform: translate(calc(-50% + var(--drag-x, 0px)), calc(-50% + var(--drag-y, 0px))) rotate(-3deg) scale(0.98);
+      }
+      100% {
+        transform: translate(calc(-50% + var(--drag-x, 0px) + 8px), calc(-50% + var(--drag-y, 0px) - 10px)) rotate(-7deg) scale(1.03);
+      }
+    }
     .big-figure {
       position: relative;
       aspect-ratio: 1;
@@ -524,17 +701,47 @@
         width: min(300px, 100%);
         height: 220px;
       }
+      .start-weiju {
+        width: clamp(82px, 22vw, 110px);
+        height: clamp(82px, 22vw, 110px);
+        border-radius: 22px;
+      }
+      .start-oli-button {
+        width: clamp(110px, 28vw, 140px);
+        height: clamp(110px, 28vw, 140px);
+        border-radius: 26px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <div class="topbar">
+  <div class="app start-mode">
+    <div class="topbar" id="topbar">
       <div class="title">Butt Cleaning Mission✨</div>
       <div class="badge" id="statusBadge">Status: Standby</div>
     </div>
 
-    <section class="scene active" id="sceneIntro">
+    <section class="scene start-screen active" id="sceneStart">
+      <div class="card start-card start-secret">
+        <div class="start-heading">
+          <h1>Find Oliver</h1>
+          <p>Move the cards to discover him.</p>
+        </div>
+        <div class="start-weiju-gallery" aria-hidden="true">
+          <img class="start-piece start-weiju weiju1" src="weiju1.webp" alt="" decoding="async">
+          <img class="start-piece start-weiju weiju2" src="weiju2.webp" alt="" decoding="async">
+          <img class="start-piece start-weiju weiju3" src="weiju3.webp" alt="" decoding="async">
+          <img class="start-piece start-weiju weiju4" src="weiju4.webp" alt="" decoding="async">
+          <img class="start-piece start-weiju weiju5" src="weiju5.webp" alt="" decoding="async">
+          <img class="start-piece start-weiju weiju6" src="weiju6.webp" alt="" decoding="async">
+        </div>
+        <button class="start-piece start-oli-button" id="startExperienceBtn" aria-label="Start birthday experience">
+          <img src="Oliver_hehe.webp" alt="Oliver" decoding="async">
+        </button>
+      </div>
+    </section>
+
+    <section class="scene" id="sceneIntro">
       <div class="hero">
         <div class="card">
           <div class="badge" style="width:max-content;">Special Toilet Operations</div>
@@ -626,11 +833,13 @@
       </div>
     </section>
   </div>
-  <audio id="bgMusic" preload="auto" src="Tomodachi Life.mp3" loop autoplay></audio>
+  <audio id="bgMusic" preload="auto" src="Tomodachi Life.mp3" loop></audio>
   <audio id="poopSound" preload="auto" src="poop_sound.mp3"></audio>
 
   <script>
+    const appShell = document.querySelector(".app");
     const scenes = {
+      start: document.getElementById("sceneStart"),
       intro: document.getElementById("sceneIntro"),
       animation: document.getElementById("sceneAnimation"),
       game: document.getElementById("sceneGame"),
@@ -653,9 +862,12 @@
     const animationProgressLabel = document.getElementById("animationProgressLabel");
     const introOliver = document.getElementById("introOliver");
     const introActions = document.getElementById("introActions");
+    const startExperienceBtn = document.getElementById("startExperienceBtn");
     const goToPoopBtn = document.getElementById("goToPoop");
     const sayNoBtn = document.getElementById("sayNoBtn");
     const poopButton = document.getElementById("poopButton");
+    const startPieces = Array.from(document.querySelectorAll(".start-piece"));
+    const startWeijus = Array.from(document.querySelectorAll(".start-weiju"));
     const bgMusic = document.getElementById("bgMusic");
     const poopSound = document.getElementById("poopSound");
     const frames = ["frame1", "frame2", "frame3"].map(id => document.getElementById(id));
@@ -690,10 +902,15 @@
     let clickAudioContext = null;
     let lastWipeSoundTime = 0;
     let introOliverImageIndex = 0;
+    let suppressStartClick = false;
 
     function showScene(name) {
       Object.values(scenes).forEach(scene => scene.classList.remove("active"));
       scenes[name].classList.add("active");
+      appShell.classList.toggle("start-mode", name === "start");
+      if (name === "start") {
+        arrangeStartPile();
+      }
     }
 
     function setStatus(text) {
@@ -837,6 +1054,23 @@
 
     function updateIntroOliverImage() {
       introOliver.src = introOliverImages[introOliverImageIndex];
+    }
+
+    function arrangeStartPile() {
+      startWeijus.forEach((piece, index) => {
+        const stackX = Math.round((Math.random() - 0.5) * 28);
+        const stackY = Math.round((Math.random() - 0.5) * 28);
+        const stackR = Math.round((Math.random() - 0.5) * 24);
+        piece.style.setProperty("--stack-x", stackX + "px");
+        piece.style.setProperty("--stack-y", stackY + "px");
+        piece.style.setProperty("--stack-r", stackR + "deg");
+        piece.style.setProperty("--drag-x", "0px");
+        piece.style.setProperty("--drag-y", "0px");
+        piece.style.zIndex = String(20 + index);
+      });
+      startExperienceBtn.style.setProperty("--drag-x", "0px");
+      startExperienceBtn.style.setProperty("--drag-y", "0px");
+      startExperienceBtn.style.zIndex = "1";
     }
 
     function setIntroDecisionState(isNo) {
@@ -1179,97 +1413,195 @@
       return { x, y };
     }
 
-    goToPoopBtn.addEventListener("click", () => {
-      playClickSound();
-      ensureBackgroundMusic();
-      runAnimation();
-    });
-    introOliver.addEventListener("click", () => {
-      if (introSaysNo) {
+    const nextToGameBtn = document.getElementById("nextToGame");
+    const finishBtn = document.getElementById("finishBtn");
+    let topStartLayer = 40;
+
+    startPieces.forEach(piece => {
+      if (piece === startExperienceBtn) {
         return;
       }
-      playClickSound();
-      ensureBackgroundMusic();
-      introOliverImageIndex = (introOliverImageIndex + 1) % introOliverImages.length;
-      updateIntroOliverImage();
-    });
-    sayNoBtn.addEventListener("click", () => {
-      playClickSound();
-      ensureBackgroundMusic();
-      setIntroDecisionState(!introSaysNo);
-    });
-    document.getElementById("finishBtn").addEventListener("click", () => {
-      playClickSound();
-      ensureBackgroundMusic();
-      finishCheck();
-    });
-    playAgainBtn.addEventListener("click", () => {
-      playClickSound();
-      ensureBackgroundMusic();
-      clearAnimationTimer();
-      endPointerInteraction();
-      if (resultAction === "retry") {
-        showScene("game");
-        resetGame();
-      } else {
-        switchBackgroundMusic("Tomodachi Life.mp3", 0.35);
-        showScene("intro");
-        setStatus("Standby");
-      }
-    });
-    document.querySelectorAll(".tool").forEach(el => {
-      el.addEventListener("click", () => {
-        playClickSound();
-        ensureBackgroundMusic();
-        setTool(el.dataset.tool);
+
+      piece.addEventListener("pointerdown", event => {
+        if (event.button !== 0) {
+          return;
+        }
+
+        event.preventDefault();
+        const startX = event.clientX;
+        const startY = event.clientY;
+        const currentDragX = parseFloat(piece.style.getPropertyValue("--drag-x")) || 0;
+        const currentDragY = parseFloat(piece.style.getPropertyValue("--drag-y")) || 0;
+        let moved = false;
+
+        piece.classList.add("dragging");
+        piece.style.zIndex = String(++topStartLayer);
+        piece.setPointerCapture(event.pointerId);
+
+        function handleMove(moveEvent) {
+          if (moveEvent.pointerId !== event.pointerId) {
+            return;
+          }
+
+          const deltaX = moveEvent.clientX - startX;
+          const deltaY = moveEvent.clientY - startY;
+          if (Math.abs(deltaX) > 6 || Math.abs(deltaY) > 6) {
+            moved = true;
+          }
+
+          piece.style.setProperty("--drag-x", currentDragX + deltaX + "px");
+          piece.style.setProperty("--drag-y", currentDragY + deltaY + "px");
+        }
+
+        function handleEnd(endEvent) {
+          if (endEvent.pointerId !== event.pointerId) {
+            return;
+          }
+
+          piece.classList.remove("dragging");
+          piece.removeEventListener("pointermove", handleMove);
+          piece.removeEventListener("pointerup", handleEnd);
+          piece.removeEventListener("pointercancel", handleEnd);
+          if (piece.hasPointerCapture(event.pointerId)) {
+            piece.releasePointerCapture(event.pointerId);
+          }
+
+          suppressStartClick = moved;
+          window.setTimeout(() => {
+            suppressStartClick = false;
+          }, 0);
+        }
+
+        piece.addEventListener("pointermove", handleMove);
+        piece.addEventListener("pointerup", handleEnd);
+        piece.addEventListener("pointercancel", handleEnd);
       });
     });
-    document.getElementById("nextToGame").addEventListener("click", () => {
-      playClickSound();
-      ensureBackgroundMusic();
-      showScene("game");
-      resetGame();
-    });
-    poopButton.addEventListener("click", () => {
-      playClickSound();
-      ensureBackgroundMusic();
-      playPoopSound();
-      if (waitingForPoop) {
-        const resumeAnimation = continueAnimationAfterPoop;
-        continueAnimationAfterPoop = null;
-        if (resumeAnimation) {
-          resumeAnimation();
-        }
+
+    startExperienceBtn.addEventListener("click", () => {
+      if (suppressStartClick) {
+        return;
       }
+
+      ensureBackgroundMusic();
+      showScene("intro");
+      setStatus("Emergency Meeting");
+    });
+
+    goToPoopBtn.addEventListener("click", () => {
+      if (goToPoopBtn.disabled) {
+        return;
+      }
+      runAnimation();
+    });
+
+    sayNoBtn.addEventListener("click", () => {
+      const nextState = !introSaysNo;
+      setIntroDecisionState(nextState);
+      setStatus(nextState ? "Denied Toilet Access" : "Emergency Meeting");
+    });
+
+    poopButton.addEventListener("click", () => {
+      if (!waitingForPoop) {
+        return;
+      }
+      playPoopSound();
+      poopButton.textContent = "Pooping...";
+      poopButton.disabled = true;
+      window.setTimeout(() => {
+        poopButton.disabled = false;
+        if (continueAnimationAfterPoop) {
+          continueAnimationAfterPoop();
+          continueAnimationAfterPoop = null;
+        }
+      }, 900);
+    });
+
+    nextToGameBtn.addEventListener("click", () => {
+      resetGame();
+      showScene("game");
+    });
+
+    document.querySelectorAll(".tool").forEach(tool => {
+      tool.addEventListener("click", () => {
+        setTool(tool.dataset.tool);
+      });
     });
 
     playArea.addEventListener("pointerdown", event => {
-      ensureBackgroundMusic();
+      if (event.button !== 0) {
+        return;
+      }
+
+      event.preventDefault();
       isPointerDown = true;
       activePointerId = event.pointerId;
-      cursorTool.style.display = "block";
       playArea.setPointerCapture(event.pointerId);
-      const { x, y } = updateCursorPosition(event);
-      scrub(x, y);
+      cursorTool.style.display = "block";
+      const point = updateCursorPosition(event);
+      scrub(point.x, point.y);
     });
 
     playArea.addEventListener("pointermove", event => {
-      if (activePointerId !== null && event.pointerId !== activePointerId) return;
-      const { x, y } = updateCursorPosition(event);
-      if (isPointerDown) scrub(x, y);
+      if (activePointerId !== event.pointerId) {
+        return;
+      }
+
+      updateCursorPosition(event);
+      if (!isPointerDown) {
+        return;
+      }
+
+      const rect = playArea.getBoundingClientRect();
+      scrub(event.clientX - rect.left, event.clientY - rect.top);
     });
 
-    playArea.addEventListener("pointerup", endPointerInteraction);
-    playArea.addEventListener("pointercancel", endPointerInteraction);
-    playArea.addEventListener("lostpointercapture", endPointerInteraction);
+    function finishPlayAreaPointer(event) {
+      if (activePointerId !== event.pointerId) {
+        return;
+      }
 
-    if (bgMusic) {
-      bgMusic.volume = 0.35;
-      bgMusic.play().catch(() => {});
+      if (playArea.hasPointerCapture(event.pointerId)) {
+        playArea.releasePointerCapture(event.pointerId);
+      }
+      endPointerInteraction();
     }
 
+    playArea.addEventListener("pointerup", finishPlayAreaPointer);
+    playArea.addEventListener("pointercancel", finishPlayAreaPointer);
+    playArea.addEventListener("pointerleave", event => {
+      if (isPointerDown && activePointerId === event.pointerId) {
+        return;
+      }
+      cursorTool.style.display = "none";
+    });
+    playArea.addEventListener("pointerenter", event => {
+      if (activePointerId === null || activePointerId === event.pointerId) {
+        updateCursorPosition(event);
+        cursorTool.style.display = "block";
+      }
+    });
+
+    finishBtn.addEventListener("click", finishCheck);
+
+    playAgainBtn.addEventListener("click", () => {
+      if (resultAction === "retry") {
+        resetGame();
+        showScene("game");
+        return;
+      }
+
+      arrangeStartPile();
+      showScene("start");
+      setStatus("Standby");
+    });
+
+    updateIntroOliverImage();
+    setIntroDecisionState(false);
+    arrangeStartPile();
     setTool("paper");
     updateDirt();
+    setStatus("Standby");
   </script>
 </body>
 </html>
