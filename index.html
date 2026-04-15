@@ -299,16 +299,6 @@
     .frame-action.hidden {
       display: none;
     }
-    .animation-outro {
-      margin-top: 18px;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.6;
-      font-weight: 600;
-      font-family: "Courier New", "American Typewriter", "Liberation Mono", monospace;
-      letter-spacing: 0.02em;
-      min-height: 48px;
-    }
     .tool-list {
       grid-template-columns: 1fr;
       gap: 14px;
@@ -589,7 +579,6 @@
             <div class="frame-copy" data-story-text="A few moments later, his masterpiece appeared: a proud little poop with Oliver's own face, looking way too pleased with itself."></div>
           </div>
         </div>
-        <p class="animation-outro" id="animationOutro" data-story-text="So the legend says: Oliver did not simply go to the toilet. Oliver completed a mission."></p>
         <div class="btns">
           <button class="primary" id="nextToGame">Wipe Butt</button>
         </div>
@@ -637,6 +626,7 @@
       </div>
     </section>
   </div>
+  <audio id="bgMusic" preload="auto" src="Tomodachi Life.mp3" loop autoplay></audio>
   <audio id="poopSound" preload="auto" src="poop_sound.mp3"></audio>
 
   <script>
@@ -666,10 +656,17 @@
     const goToPoopBtn = document.getElementById("goToPoop");
     const sayNoBtn = document.getElementById("sayNoBtn");
     const poopButton = document.getElementById("poopButton");
+    const bgMusic = document.getElementById("bgMusic");
     const poopSound = document.getElementById("poopSound");
     const frames = ["frame1", "frame2", "frame3"].map(id => document.getElementById(id));
     const frameCopies = Array.from(document.querySelectorAll(".frame-copy"));
-    const animationOutro = document.getElementById("animationOutro");
+    const introOliverImages = [
+      "Oliver_hehe.webp",
+      "oliver1.webp",
+      "oliver2.webp",
+      "oliver3.webp",
+      "oliver4.webp"
+    ];
 
     let currentTool = "paper";
     let dirt = 100;
@@ -690,6 +687,9 @@
     let progressPausedPercent = 0;
     let prePoopProgressDuration = 1;
     let postPoopProgressDuration = 1;
+    let clickAudioContext = null;
+    let lastWipeSoundTime = 0;
+    let introOliverImageIndex = 0;
 
     function showScene(name) {
       Object.values(scenes).forEach(scene => scene.classList.remove("active"));
@@ -730,9 +730,118 @@
       poopSound.play().catch(() => {});
     }
 
+    function playClickSound() {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) {
+        return;
+      }
+
+      if (!clickAudioContext) {
+        clickAudioContext = new AudioContextClass();
+      }
+
+      if (clickAudioContext.state === "suspended") {
+        clickAudioContext.resume().catch(() => {});
+      }
+
+      const now = clickAudioContext.currentTime;
+      const oscillator = clickAudioContext.createOscillator();
+      const gainNode = clickAudioContext.createGain();
+
+      oscillator.type = "triangle";
+      oscillator.frequency.setValueAtTime(900, now);
+      oscillator.frequency.exponentialRampToValueAtTime(560, now + 0.05);
+
+      gainNode.gain.setValueAtTime(0.0001, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.03, now + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(clickAudioContext.destination);
+      oscillator.start(now);
+      oscillator.stop(now + 0.08);
+    }
+
+    function playWipeSound(intensity = 1) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) {
+        return;
+      }
+
+      const nowMs = performance.now();
+      if (nowMs - lastWipeSoundTime < 55) {
+        return;
+      }
+      lastWipeSoundTime = nowMs;
+
+      if (!clickAudioContext) {
+        clickAudioContext = new AudioContextClass();
+      }
+
+      if (clickAudioContext.state === "suspended") {
+        clickAudioContext.resume().catch(() => {});
+      }
+
+      const now = clickAudioContext.currentTime;
+      const duration = 0.08;
+      const bufferSize = Math.max(1, Math.floor(clickAudioContext.sampleRate * duration));
+      const buffer = clickAudioContext.createBuffer(1, bufferSize, clickAudioContext.sampleRate);
+      const channel = buffer.getChannelData(0);
+      const gainValue = Math.min(0.028, 0.012 + intensity * 0.008);
+
+      for (let i = 0; i < bufferSize; i += 1) {
+        const progress = 1 - i / bufferSize;
+        channel[i] = (Math.random() * 2 - 1) * progress * 0.65;
+      }
+
+      const source = clickAudioContext.createBufferSource();
+      const filter = clickAudioContext.createBiquadFilter();
+      const gainNode = clickAudioContext.createGain();
+
+      source.buffer = buffer;
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(1200 + intensity * 500, now);
+      filter.Q.setValueAtTime(0.9, now);
+
+      gainNode.gain.setValueAtTime(0.0001, now);
+      gainNode.gain.exponentialRampToValueAtTime(gainValue, now + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+      source.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(clickAudioContext.destination);
+      source.start(now);
+      source.stop(now + duration);
+    }
+
+    function ensureBackgroundMusic() {
+      if (!bgMusic || !bgMusic.paused) {
+        return;
+      }
+      bgMusic.volume = 0.35;
+      bgMusic.play().catch(() => {});
+    }
+
+    function switchBackgroundMusic(src, volume = 0.35) {
+      if (!bgMusic) {
+        return;
+      }
+      if (!bgMusic.src.endsWith(encodeURI(src)) && !bgMusic.src.endsWith(src)) {
+        bgMusic.pause();
+        bgMusic.src = src;
+        bgMusic.load();
+      }
+      bgMusic.volume = volume;
+      bgMusic.play().catch(() => {});
+    }
+
+    function updateIntroOliverImage() {
+      introOliver.src = introOliverImages[introOliverImageIndex];
+    }
+
     function setIntroDecisionState(isNo) {
       introSaysNo = isNo;
-      introOliver.src = isNo ? "Oliver_no.webp" : "Oliver_hehe.webp";
+      introOliver.src = isNo ? "Oliver_no.webp" : introOliverImages[introOliverImageIndex];
       sayNoBtn.textContent = isNo ? "Yes" : "No";
       sayNoBtn.className = isNo ? "toggle-yes" : "toggle-no";
       introActions.classList.toggle("no-active", isNo);
@@ -778,6 +887,7 @@
       clearAnimationTimer();
       clearStoryTyping();
       clearProgressAnimation();
+      switchBackgroundMusic("Tomodachi Life.mp3", 0.35);
       poopSound.pause();
       poopSound.currentTime = 0;
       setIntroDecisionState(false);
@@ -787,7 +897,6 @@
       frameCopies.forEach(copy => {
         copy.textContent = "";
       });
-      animationOutro.textContent = "";
       poopButton.classList.add("hidden");
       poopButton.textContent = "Poop";
       waitingForPoop = false;
@@ -799,10 +908,9 @@
       const delayBetweenFrames = 800;
       const frame1Duration = frameDisplayDuration + (frameCopies[0].dataset.storyText || "").length * 35 + delayBetweenFrames;
       const frame2Duration = frameDisplayDuration + (frameCopies[1].dataset.storyText || "").length * 35;
-      const frame3Duration = frameDisplayDuration + (frameCopies[2].dataset.storyText || "").length * 35 + delayBetweenFrames;
-      const outroDuration = frameDisplayDuration + (animationOutro.dataset.storyText || "").length * 35;
+      const frame3Duration = frameDisplayDuration + (frameCopies[2].dataset.storyText || "").length * 35;
       prePoopProgressDuration = frame1Duration + frame2Duration;
-      postPoopProgressDuration = frame3Duration + outroDuration;
+      postPoopProgressDuration = frame3Duration;
       const totalDuration = prePoopProgressDuration + postPoopProgressDuration;
       progressPausedPercent = prePoopProgressDuration / totalDuration * 99;
       startAnimationProgress(prePoopProgressDuration, 0, progressPausedPercent);
@@ -830,15 +938,6 @@
               }
             });
           }, frameDisplayDuration);
-        } else if (index === frames.length) {
-          animationTimer = window.setTimeout(() => {
-            typeOutroText(() => {
-              index += 1;
-              animationTimer = null;
-              clearProgressAnimation();
-              setAnimationProgress(100);
-            });
-          }, frameDisplayDuration);
         } else {
           animationTimer = null;
           clearProgressAnimation();
@@ -864,25 +963,6 @@
         setFrameCopy(paragraphIndex, typedText);
         charIndex += 1;
 
-        storyTypingTimer = window.setTimeout(typeNextCharacter, 35);
-      }
-
-      typeNextCharacter();
-    }
-
-    function typeOutroText(callback) {
-      const storyText = animationOutro.dataset.storyText || "";
-      let charIndex = 0;
-
-      function typeNextCharacter() {
-        if (charIndex >= storyText.length) {
-          storyTypingTimer = null;
-          if (callback) callback();
-          return;
-        }
-
-        animationOutro.textContent = storyText.slice(0, charIndex + 1);
-        charIndex += 1;
         storyTypingTimer = window.setTimeout(typeNextCharacter, 35);
       }
 
@@ -1007,11 +1087,13 @@
       if (currentTool === "wipe") {
         dirt = Math.max(0, dirt - 1.7);
         usingHand = false;
+        playWipeSound(1);
         cleanSomeSmears(2);
         reactionBox.textContent = dirt < 18 ? "Oh wow, it's actually clean now. Finally respectable." : "Good, you're on the right track. Keep scrubbing.";
       } else if (currentTool === "paper") {
         dirt = Math.max(22, dirt - 0.75);
         usingHand = false;
+        playWipeSound(0.65);
         cleanSomeSmears(1);
         reactionBox.textContent = "It's getting lighter, but something feels... incomplete.";
       } else {
@@ -1036,6 +1118,7 @@
     function resetGame() {
       clearAnimationTimer();
       endPointerInteraction();
+      switchBackgroundMusic("trouble.mp3", 0.35);
       dirt = 100;
       usingHand = false;
       smearCount = 0;
@@ -1077,6 +1160,7 @@
         resultTitle.textContent = "Barely Passing";
         resultText.textContent = "I can tell you tried, next time use the right tool from the start. Pipi de da bian still cho cho de.";
       } else {
+        switchBackgroundMusic("In Love.mp3", 0.4);
         resultAction = "home";
         playAgainBtn.textContent = "Back Home";
         playAgainBtn.className = "primary";
@@ -1095,27 +1179,60 @@
       return { x, y };
     }
 
-    goToPoopBtn.addEventListener("click", runAnimation);
+    goToPoopBtn.addEventListener("click", () => {
+      playClickSound();
+      ensureBackgroundMusic();
+      runAnimation();
+    });
+    introOliver.addEventListener("click", () => {
+      if (introSaysNo) {
+        return;
+      }
+      playClickSound();
+      ensureBackgroundMusic();
+      introOliverImageIndex = (introOliverImageIndex + 1) % introOliverImages.length;
+      updateIntroOliverImage();
+    });
     sayNoBtn.addEventListener("click", () => {
+      playClickSound();
+      ensureBackgroundMusic();
       setIntroDecisionState(!introSaysNo);
     });
-    document.getElementById("finishBtn").addEventListener("click", finishCheck);
+    document.getElementById("finishBtn").addEventListener("click", () => {
+      playClickSound();
+      ensureBackgroundMusic();
+      finishCheck();
+    });
     playAgainBtn.addEventListener("click", () => {
+      playClickSound();
+      ensureBackgroundMusic();
       clearAnimationTimer();
       endPointerInteraction();
       if (resultAction === "retry") {
         showScene("game");
         resetGame();
       } else {
+        switchBackgroundMusic("Tomodachi Life.mp3", 0.35);
         showScene("intro");
         setStatus("Standby");
       }
     });
     document.querySelectorAll(".tool").forEach(el => {
-      el.addEventListener("click", () => setTool(el.dataset.tool));
+      el.addEventListener("click", () => {
+        playClickSound();
+        ensureBackgroundMusic();
+        setTool(el.dataset.tool);
+      });
     });
-    document.getElementById("nextToGame").addEventListener("click", () => { showScene("game"); resetGame(); });
+    document.getElementById("nextToGame").addEventListener("click", () => {
+      playClickSound();
+      ensureBackgroundMusic();
+      showScene("game");
+      resetGame();
+    });
     poopButton.addEventListener("click", () => {
+      playClickSound();
+      ensureBackgroundMusic();
       playPoopSound();
       if (waitingForPoop) {
         const resumeAnimation = continueAnimationAfterPoop;
@@ -1127,6 +1244,7 @@
     });
 
     playArea.addEventListener("pointerdown", event => {
+      ensureBackgroundMusic();
       isPointerDown = true;
       activePointerId = event.pointerId;
       cursorTool.style.display = "block";
@@ -1144,6 +1262,11 @@
     playArea.addEventListener("pointerup", endPointerInteraction);
     playArea.addEventListener("pointercancel", endPointerInteraction);
     playArea.addEventListener("lostpointercapture", endPointerInteraction);
+
+    if (bgMusic) {
+      bgMusic.volume = 0.35;
+      bgMusic.play().catch(() => {});
+    }
 
     setTool("paper");
     updateDirt();
