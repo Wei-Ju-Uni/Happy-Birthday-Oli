@@ -34,6 +34,66 @@
         radial-gradient(circle at bottom right, rgba(255,255,255,0.35), transparent 24%),
         linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
     }
+    body.success-love-mode {
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.7), transparent 26%),
+        radial-gradient(circle at bottom right, rgba(255,213,232,0.5), transparent 24%),
+        linear-gradient(180deg, #ffd8e8 0%, #ff9fc9 100%);
+    }
+    .heart-layer {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 50;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+    body.success-love-mode .heart-layer {
+      opacity: 1;
+    }
+    /* noinspection CssUnusedSymbol */
+    .heart {
+      position: absolute;
+      bottom: -80px;
+      width: calc(18px * var(--scale, 1));
+      height: calc(18px * var(--scale, 1));
+      background: linear-gradient(180deg, rgba(255,149,194,0.96), rgba(255,82,154,0.92));
+      transform: rotate(45deg);
+      opacity: var(--opacity, 0.5);
+      animation: heart-rise var(--duration, 12s) linear infinite;
+      animation-delay: var(--delay, 0s);
+      filter: drop-shadow(0 8px 14px rgba(214, 62, 124, 0.18));
+    }
+    /* noinspection CssUnusedSymbol */
+    .heart::before,
+    /* noinspection CssUnusedSymbol */
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: inherit;
+    }
+    /* noinspection CssUnusedSymbol */
+    .heart::before {
+      left: -50%;
+      top: 0;
+    }
+    /* noinspection CssUnusedSymbol */
+    .heart::after {
+      top: -50%;
+      left: 0;
+    }
+    @keyframes heart-rise {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(45deg) scale(0.9);
+      }
+      100% {
+        transform: translate3d(var(--drift, 0px), -120vh, 0) rotate(45deg) scale(1.12);
+      }
+    }
     .app {
       width: min(920px, 100%);
       overflow: visible;
@@ -42,6 +102,11 @@
       background: var(--panel);
       box-shadow: var(--shadow);
       backdrop-filter: blur(14px);
+    }
+    body.success-love-mode .app {
+      border-color: rgba(245, 150, 189, 0.36);
+      background: linear-gradient(180deg, rgba(255,244,248,0.9), rgba(255,221,235,0.9));
+      box-shadow: 0 28px 70px rgba(210, 82, 141, 0.22);
     }
     .app.start-mode {
       border: none;
@@ -60,6 +125,9 @@
       padding: 22px 26px;
       border-radius: 32px 32px 0 0;
       background: linear-gradient(90deg, rgba(142, 61, 242, 0.88), rgba(208, 151, 255, 0.92));
+    }
+    body.success-love-mode .topbar {
+      background: linear-gradient(90deg, rgba(255, 97, 170, 0.94), rgba(255, 181, 215, 0.96));
     }
     .title {
       font-size: clamp(28px, 4vw, 34px);
@@ -343,17 +411,6 @@
       z-index: 30;
       pointer-events: none;
     }
-    .start-heading .cheat-btn {
-      pointer-events: auto;
-      justify-self: center;
-      min-width: 160px;
-      padding: 12px 18px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.92);
-      color: #5f3377;
-      border: 1px solid rgba(157, 78, 221, 0.18);
-      box-shadow: 0 12px 24px rgba(91, 47, 133, 0.12);
-    }
     .start-heading h1 {
       margin: 0;
       font-size: clamp(34px, 6vw, 58px);
@@ -550,6 +607,11 @@
     .primary {
       background: linear-gradient(180deg, var(--primary), var(--primary-dark));
       color: white;
+    }
+    body.success-love-mode #playAgainBtn.primary {
+      background: linear-gradient(180deg, #ff79b8, #e2468d);
+      color: #fff7fb;
+      box-shadow: 0 16px 28px rgba(210, 82, 141, 0.24);
     }
     /* noinspection CssUnusedSymbol */
     .secondary {
@@ -871,6 +933,42 @@
       padding: 30px 24px 18px;
       text-align: center;
     }
+    .result-box.success-love {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(241, 132, 177, 0.26);
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,0.78), transparent 32%),
+        linear-gradient(180deg, rgba(255,242,247,0.96), rgba(255,214,230,0.96));
+      box-shadow: 0 24px 48px rgba(210, 82, 141, 0.16);
+    }
+    body.success-love-mode #sceneResult.active {
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,0.35), transparent 30%),
+        linear-gradient(180deg, rgba(255,232,241,0.62), rgba(255,199,221,0.62));
+      border-radius: 30px;
+    }
+    .result-box.success-love::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 14% 18%, rgba(255,255,255,0.48), transparent 16%),
+        radial-gradient(circle at 82% 22%, rgba(255,255,255,0.34), transparent 18%),
+        radial-gradient(circle at 50% 100%, rgba(255,162,206,0.2), transparent 38%);
+      pointer-events: none;
+    }
+    .result-box.success-love #resultTitle {
+      color: #c13f7c;
+      text-shadow: 0 10px 22px rgba(218, 99, 155, 0.16);
+    }
+    .result-box.success-love #resultText {
+      color: #9d4f74;
+    }
+    #resultText {
+      white-space: pre-line;
+    }
     .result-face {
       display: flex;
       align-items: center;
@@ -919,6 +1017,7 @@
   </style>
 </head>
 <body>
+  <div class="heart-layer" id="heartLayer" aria-hidden="true"></div>
   <div class="app start-mode">
     <div class="topbar" id="topbar">
       <div class="title">Butt Cleaning Mission✨</div>
@@ -985,7 +1084,6 @@
         <div class="start-heading">
           <h1>Find Oliver</h1>
           <p>Move the cards to discover him.</p>
-          <button class="cheat-btn" id="startCheatBtn" type="button">Cheat: Skip In</button>
         </div>
         <div class="start-weiju-gallery" aria-hidden="true">
           <img class="start-piece start-weiju weiju1" src="weiju1.webp" alt="" decoding="async">
@@ -1013,7 +1111,7 @@
           </div>
         </div>
         <div class="big-figure">
-          <div class="man"><img src="Oliver_hehe.webp" alt="Boyfriend" id="introOliver" decoding="async"></div>
+          <div class="man"><img src="Oliver_hehe.webp" alt="Boyfriend" id="introOliver" decoding="async" loading="eager" fetchpriority="high"></div>
         </div>
       </div>
     </section>
@@ -1074,7 +1172,7 @@
             <div class="butt"><img src="Oliver_ass.webp" alt="Oliver butt" loading="lazy" decoding="async"></div>
             <div class="stain" id="stain"></div>
             <div class="sparkle-layer" id="sparkleLayer" aria-hidden="true"></div>
-            <div class="cursor-tool" id="cursorTool"><img src="wet.webp" alt="Current tool" decoding="async"></div>
+            <div class="cursor-tool" id="cursorTool"><img src="paper.webp" alt="paper tool" decoding="async" loading="eager"></div>
           </div>
           <div class="reaction" id="reactionBox">Please select a tool first, then click and drag on the ASS.</div>
         </div>
@@ -1082,7 +1180,7 @@
     </section>
 
     <section class="scene" id="sceneResult">
-      <div class="result-box">
+      <div class="result-box" id="resultBox">
         <div class="result-face" id="resultFace"><img src="Weiju_ok.webp" alt="Inspection reaction" loading="lazy" decoding="async"></div>
         <h2 id="resultTitle">Inspection Results</h2>
         <p class="sub" id="resultText"></p>
@@ -1114,15 +1212,16 @@
     const meterFill = document.getElementById("meterFill");
     const cursorTool = document.getElementById("cursorTool");
     const resultFace = document.getElementById("resultFace");
+    const resultBox = document.getElementById("resultBox");
     const resultTitle = document.getElementById("resultTitle");
     const resultText = document.getElementById("resultText");
     const playAgainBtn = document.getElementById("playAgainBtn");
+    const heartLayer = document.getElementById("heartLayer");
     const animationProgressFill = document.getElementById("animationProgressFill");
     const animationProgressLabel = document.getElementById("animationProgressLabel");
     const introOliver = document.getElementById("introOliver");
     const introActions = document.getElementById("introActions");
     const startExperienceBtn = document.getElementById("startExperienceBtn");
-    const startCheatBtn = document.getElementById("startCheatBtn");
     const titleTransition = document.getElementById("titleTransition");
     const goToPoopBtn = document.getElementById("goToPoop");
     const sayNoBtn = document.getElementById("sayNoBtn");
@@ -1133,6 +1232,7 @@
     const poopSound = document.getElementById("poopSound");
     const frames = ["frame1", "frame2", "frame3"].map(id => document.getElementById(id));
     const frameCopies = Array.from(document.querySelectorAll(".frame-copy"));
+    const cursorToolImage = cursorTool.querySelector("img");
     const introOliverImages = [
       "Oliver_hehe.webp",
       "oliver1.webp",
@@ -1140,6 +1240,12 @@
       "oliver3.webp",
       "oliver4.webp"
     ];
+    const introOliverStateImages = [...introOliverImages, "Oliver_no.webp"];
+    const toolAssets = {
+      wipe: ["wet.webp", "Wet wipes mode activated. Now we're talking like a civilized person."],
+      paper: ["paper.webp", "Toilet paper mode activated. You're trying, but I'm not holding my breath."],
+      hand: ["hand.webp", "Bare hand mode activated. Are you trying to make this an international incident?"]
+    };
 
     let currentTool = "paper";
     let dirt = 100;
@@ -1166,6 +1272,7 @@
     let suppressStartClick = false;
     let titleTransitionTimer = null;
     let isTitleTransitionRunning = false;
+    const preloadedIntroOliverImages = [];
 
     function showScene(name) {
       Object.values(scenes).forEach(scene => scene.classList.remove("active"));
@@ -1324,6 +1431,61 @@
 
     function updateIntroOliverImage() {
       introOliver.src = introOliverImages[introOliverImageIndex];
+    }
+
+    function preloadIntroOliverImages() {
+      introOliverStateImages.forEach(src => {
+        const image = new Image();
+        image.decoding = "async";
+        image.src = src;
+        preloadedIntroOliverImages.push(image);
+
+        if (typeof image.decode === "function") {
+          image.decode().catch(() => {});
+        }
+      });
+    }
+
+    function preloadToolImages() {
+      Object.values(toolAssets).forEach(([src]) => {
+        const image = new Image();
+        image.decoding = "async";
+        image.src = src;
+        preloadedIntroOliverImages.push(image);
+
+        if (typeof image.decode === "function") {
+          image.decode().catch(() => {});
+        }
+      });
+    }
+
+    function createFloatingHearts() {
+      if (!heartLayer) {
+        return;
+      }
+
+      heartLayer.innerHTML = "";
+      for (let index = 0; index < 30; index += 1) {
+        const heart = document.createElement("div");
+        heart.className = "heart";
+        heart.style.left = `${Math.random() * 100}%`;
+        heart.style.setProperty("--scale", (0.7 + Math.random() * 1.5).toFixed(2));
+        heart.style.setProperty("--opacity", (0.18 + Math.random() * 0.46).toFixed(2));
+        heart.style.setProperty("--duration", `${8 + Math.random() * 10}s`);
+        heart.style.setProperty("--delay", `${-Math.random() * 18}s`);
+        heart.style.setProperty("--drift", `${Math.round((Math.random() - 0.5) * 110)}px`);
+        heartLayer.appendChild(heart);
+      }
+    }
+
+    function setSuccessLoveMode(isActive) {
+      document.body.classList.toggle("success-love-mode", isActive);
+      if (resultBox) {
+        resultBox.classList.toggle("success-love", isActive);
+      }
+      if (isActive) {
+        createFloatingHearts();
+      }
     }
 
     function cycleIntroOliverImage() {
@@ -1489,6 +1651,8 @@
           animationTimer = null;
           clearProgressAnimation();
           setAnimationProgress(100);
+          poopButton.classList.add("hidden");
+          poopButton.textContent = "Poop";
         }
       }
 
@@ -1527,13 +1691,9 @@
       document.querySelectorAll(".tool").forEach(el => {
         el.classList.toggle("selected", el.dataset.tool === tool);
       });
-      const map = {
-        wipe: ["wet.webp", "Wet wipes mode activated. Now we're talking like a civilized person."],
-        paper: ["paper.webp", "Toilet paper mode activated. You're trying, but I'm not holding my breath."],
-        hand: ["hand.webp", "Bare hand mode activated. Are you trying to make this an international incident?"]
-      };
-      cursorTool.innerHTML = `<img src="${map[tool][0]}" alt="${tool} tool">`;
-      reactionBox.textContent = map[tool][1];
+      cursorToolImage.src = toolAssets[tool][0];
+      cursorToolImage.alt = `${tool} tool`;
+      reactionBox.textContent = toolAssets[tool][1];
     }
 
     function updateDirt() {
@@ -1685,8 +1845,10 @@
       endPointerInteraction();
       showScene("result");
       setStatus("Inspection Results Complete");
+      setSuccessLoveMode(false);
       if (dirt > 100) {
         resultAction = "retry";
+        playAgainBtn.hidden = false;
         playAgainBtn.textContent = "Try Again";
         playAgainBtn.className = "danger";
         resultFace.innerHTML = '<img src="Weiju_bad.webp" alt="Bad cleaning result" decoding="async">';
@@ -1694,6 +1856,7 @@
         resultText.textContent = "I declare this is not cleaning. You've escalated the situation. Go back and redo it right now. Don't come near me.";
       } else if (dirt > 45) {
         resultAction = "retry";
+        playAgainBtn.hidden = false;
         playAgainBtn.textContent = "Try Again";
         playAgainBtn.className = "danger";
         resultFace.innerHTML = '<video src="Weiju_dare_small.mp4" autoplay loop muted playsinline preload="metadata"></video>';
@@ -1701,6 +1864,7 @@
         resultText.textContent = "Did you think I wouldn't notice? This is only surface effort. Are you a spy from the Poo Poo Kingdom?";
       } else if (dirt > 10) {
         resultAction = "retry";
+        playAgainBtn.hidden = false;
         playAgainBtn.textContent = "Try Again";
         playAgainBtn.className = "danger";
         resultFace.innerHTML = '<img src="Weiju_ok.webp" alt="Okay cleaning result" decoding="async">';
@@ -1709,11 +1873,13 @@
       } else {
         switchBackgroundMusic("In Love.mp3", 0.4);
         resultAction = "home";
+        playAgainBtn.hidden = false;
         playAgainBtn.textContent = "Back Home";
         playAgainBtn.className = "primary";
+        setSuccessLoveMode(true);
         resultFace.innerHTML = '<img src="Weiju_wow.webp" alt="Good cleaning result" decoding="async">';
         resultTitle.textContent = "So Clean I'm Shocked";
-        resultText.textContent = "Hao Bang!! You've performed outstandingly today. Da bian alert officially lifted.";
+        resultText.textContent = "Hao Bang!! You've performed outstandingly today. Da bian alert officially lifted.\n\nI think I just fell in love all over again ~~";
       }
     }
 
@@ -1799,16 +1965,7 @@
         return;
       }
 
-      ensureBackgroundMusic();
-      playIntroTitleTransition();
-    });
-
-    startCheatBtn.addEventListener("click", () => {
-      if (isTitleTransitionRunning) {
-        return;
-      }
-
-      ensureBackgroundMusic();
+      switchBackgroundMusic("Tomodachi Life.mp3", 0.35);
       playIntroTitleTransition();
     });
 
@@ -1828,7 +1985,7 @@
     introOliver.addEventListener("click", cycleIntroOliverImage);
 
     poopButton.addEventListener("click", () => {
-      if (!waitingForPoop) {
+      if (poopButton.classList.contains("hidden")) {
         return;
       }
       playPoopSound();
@@ -1839,6 +1996,8 @@
         if (continueAnimationAfterPoop) {
           continueAnimationAfterPoop();
           continueAnimationAfterPoop = null;
+        } else {
+          poopButton.textContent = "Poop Again";
         }
       }, 900);
     });
@@ -1902,15 +2061,15 @@
       cursorTool.style.display = "none";
     });
     playArea.addEventListener("pointerenter", event => {
-      if (activePointerId === null || activePointerId === event.pointerId) {
+      if (activePointerId === event.pointerId) {
         updateCursorPosition(event);
-        cursorTool.style.display = "block";
       }
     });
 
     finishBtn.addEventListener("click", finishCheck);
 
     playAgainBtn.addEventListener("click", () => {
+      setSuccessLoveMode(false);
       if (resultAction === "retry") {
         resetGame();
         showScene("game");
@@ -1927,6 +2086,9 @@
     });
 
     updateIntroOliverImage();
+    preloadIntroOliverImages();
+    preloadToolImages();
+    setSuccessLoveMode(false);
     setIntroDecisionState(false);
     arrangeStartPile();
     setTool("paper");
