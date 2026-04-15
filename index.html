@@ -35,6 +35,18 @@
         linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
     }
     body.success-love-mode {
+      --bg-top: #ffd8e8;
+      --bg-bottom: #ff9fc9;
+      --panel: rgba(255, 239, 246, 0.88);
+      --panel-border: rgba(247, 173, 204, 0.5);
+      --card-bg: rgba(255, 244, 248, 0.95);
+      --card-border: rgba(240, 136, 183, 0.28);
+      --text: #8b2d5a;
+      --muted: #b05b82;
+      --primary: #ff72b3;
+      --primary-dark: #de468d;
+      --accent-soft: #ffe6f0;
+      --shadow: 0 24px 70px rgba(210, 82, 141, 0.2);
       background:
         radial-gradient(circle at top left, rgba(255,255,255,0.7), transparent 26%),
         radial-gradient(circle at bottom right, rgba(255,213,232,0.5), transparent 24%),
@@ -108,6 +120,13 @@
       background: linear-gradient(180deg, rgba(255,244,248,0.9), rgba(255,221,235,0.9));
       box-shadow: 0 28px 70px rgba(210, 82, 141, 0.22);
     }
+    body.success-love-mode .app.start-mode {
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+    }
     .app.start-mode {
       border: none;
       border-radius: 0;
@@ -129,6 +148,19 @@
     body.success-love-mode .topbar {
       background: linear-gradient(90deg, rgba(255, 97, 170, 0.94), rgba(255, 181, 215, 0.96));
     }
+    body.success-love-mode #sceneStart.active .start-heading h1 {
+      text-shadow: 0 8px 24px rgba(210, 82, 141, 0.28);
+    }
+    body.success-love-mode #sceneStart.active .start-heading p {
+      color: rgba(176, 72, 116, 0.86);
+    }
+    body.success-love-mode #sceneStart.active .start-weiju {
+      filter: drop-shadow(0 16px 28px rgba(210, 82, 141, 0.16));
+    }
+    body.success-love-mode #sceneStart.active .start-oli-button:hover,
+    body.success-love-mode #sceneStart.active .start-oli-button.zooming {
+      filter: drop-shadow(0 16px 28px rgba(210, 82, 141, 0.2));
+    }
     .title {
       font-size: clamp(28px, 4vw, 34px);
       font-weight: 900;
@@ -148,6 +180,9 @@
       background: linear-gradient(90deg, rgba(142, 61, 242, 0.96), rgba(208, 151, 255, 0.96));
       border-radius: 32px;
       opacity: 0;
+    }
+    body.success-love-mode .title-transition {
+      background: linear-gradient(90deg, rgba(255, 104, 175, 0.96), rgba(255, 188, 219, 0.97));
     }
     .title-transition.active {
       display: flex;
@@ -190,6 +225,10 @@
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.92), 0 12px 24px rgba(72, 18, 116, 0.12);
       opacity: 0;
       transform: translateY(22px) scale(0.92);
+    }
+    body.success-love-mode .title-transition-subtitle {
+      color: #b43f75;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.92), 0 12px 24px rgba(210, 82, 141, 0.14);
     }
     .title-transition-subtitle-letter {
       display: inline-block;
@@ -949,6 +988,55 @@
         linear-gradient(180deg, rgba(255,232,241,0.62), rgba(255,199,221,0.62));
       border-radius: 30px;
     }
+    body.success-love-mode .badge,
+    body.success-love-mode .frame-title,
+    body.success-love-mode .tool-label,
+    body.success-love-mode .secondary {
+      color: #b13972;
+    }
+    body.success-love-mode .big-figure {
+      border-color: rgba(240, 136, 183, 0.24);
+      background: radial-gradient(circle at 50% 24%, rgba(255,255,255,0.98) 0%, rgba(255,236,243,0.96) 42%, rgba(255,208,224,0.94) 100%);
+    }
+    body.success-love-mode .speech {
+      color: #cb4f88;
+      box-shadow: 0 10px 24px rgba(210, 82, 141, 0.16);
+    }
+    body.success-love-mode .animation-progress-label {
+      color: #c2608c;
+    }
+    body.success-love-mode .animation-progress-track,
+    body.success-love-mode .meter {
+      background: linear-gradient(180deg, #ffe7f0, #ffd3e3);
+      border-color: rgba(240, 136, 183, 0.14);
+    }
+    body.success-love-mode .animation-progress-fill {
+      background: linear-gradient(90deg, #ff75b6, #ffb1d4);
+      box-shadow: 0 0 0 4px rgba(255, 114, 179, 0.14);
+    }
+    body.success-love-mode .frame {
+      border-color: rgba(240, 136, 183, 0.2);
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,237,244,0.95));
+      box-shadow: 0 14px 30px rgba(210, 82, 141, 0.1);
+    }
+    body.success-love-mode .frame.active {
+      border-color: rgba(240, 136, 183, 0.42);
+      background: linear-gradient(180deg, rgba(255,255,255,1), rgba(255,224,236,1));
+      box-shadow: 0 16px 36px rgba(210, 82, 141, 0.16);
+    }
+    body.success-love-mode .tool {
+      border-color: rgba(240, 136, 183, 0.14);
+      background: linear-gradient(180deg, rgba(255,255,255,0.97), rgba(255,239,245,0.97));
+      box-shadow: 0 12px 24px rgba(210, 82, 141, 0.08);
+    }
+    body.success-love-mode .tool:hover {
+      border-color: rgba(240, 136, 183, 0.3);
+      box-shadow: 0 16px 28px rgba(210, 82, 141, 0.14);
+    }
+    body.success-love-mode .tool.selected {
+      background: linear-gradient(180deg, #fff2f7, #ffdce9);
+      box-shadow: 0 18px 30px rgba(210, 82, 141, 0.18);
+    }
     .result-box.success-love::before {
       content: "";
       position: absolute;
@@ -1272,6 +1360,7 @@
     let suppressStartClick = false;
     let titleTransitionTimer = null;
     let isTitleTransitionRunning = false;
+    let loveThemeUnlocked = false;
     const preloadedIntroOliverImages = [];
 
     function showScene(name) {
@@ -1479,11 +1568,12 @@
     }
 
     function setSuccessLoveMode(isActive) {
-      document.body.classList.toggle("success-love-mode", isActive);
+      const shouldEnable = isActive || loveThemeUnlocked;
+      document.body.classList.toggle("success-love-mode", shouldEnable);
       if (resultBox) {
-        resultBox.classList.toggle("success-love", isActive);
+        resultBox.classList.toggle("success-love", shouldEnable);
       }
-      if (isActive) {
+      if (shouldEnable) {
         createFloatingHearts();
       }
     }
@@ -1651,8 +1741,8 @@
           animationTimer = null;
           clearProgressAnimation();
           setAnimationProgress(100);
-          poopButton.classList.add("hidden");
-          poopButton.textContent = "Poop";
+          // poopButton.classList.add("hidden");
+          poopButton.textContent = "Poop Again";
         }
       }
 
@@ -1845,7 +1935,6 @@
       endPointerInteraction();
       showScene("result");
       setStatus("Inspection Results Complete");
-      setSuccessLoveMode(false);
       if (dirt > 100) {
         resultAction = "retry";
         playAgainBtn.hidden = false;
@@ -1873,6 +1962,7 @@
       } else {
         switchBackgroundMusic("In Love.mp3", 0.4);
         resultAction = "home";
+        loveThemeUnlocked = true;
         playAgainBtn.hidden = false;
         playAgainBtn.textContent = "Back Home";
         playAgainBtn.className = "primary";
@@ -1958,6 +2048,7 @@
     });
 
     startExperienceBtn.addEventListener("click", () => {
+      playClickSound();
       if (suppressStartClick || isTitleTransitionRunning) {
         return;
       }
@@ -1970,6 +2061,7 @@
     });
 
     goToPoopBtn.addEventListener("click", () => {
+      playClickSound();
       if (goToPoopBtn.disabled) {
         return;
       }
@@ -1977,6 +2069,7 @@
     });
 
     sayNoBtn.addEventListener("click", () => {
+      playClickSound();
       const nextState = !introSaysNo;
       setIntroDecisionState(nextState);
       setStatus(nextState ? "Denied Toilet Access" : "Emergency Meeting");
@@ -1985,6 +2078,7 @@
     introOliver.addEventListener("click", cycleIntroOliverImage);
 
     poopButton.addEventListener("click", () => {
+      playClickSound();
       if (poopButton.classList.contains("hidden")) {
         return;
       }
@@ -2003,12 +2097,14 @@
     });
 
     nextToGameBtn.addEventListener("click", () => {
+      playClickSound();
       resetGame();
       showScene("game");
     });
 
     document.querySelectorAll(".tool").forEach(tool => {
       tool.addEventListener("click", () => {
+        playClickSound();
         setTool(tool.dataset.tool);
       });
     });
@@ -2066,10 +2162,13 @@
       }
     });
 
-    finishBtn.addEventListener("click", finishCheck);
+    finishBtn.addEventListener("click", () => {
+      playClickSound();
+      finishCheck();
+    });
 
     playAgainBtn.addEventListener("click", () => {
-      setSuccessLoveMode(false);
+      playClickSound();
       if (resultAction === "retry") {
         resetGame();
         showScene("game");
