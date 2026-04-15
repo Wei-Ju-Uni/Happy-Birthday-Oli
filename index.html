@@ -68,6 +68,198 @@
       color: #ffffff;
       text-shadow: 0 2px 12px rgba(72, 18, 116, 0.26);
     }
+    .title-transition {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 60;
+      overflow: hidden;
+      background: linear-gradient(90deg, rgba(142, 61, 242, 0.96), rgba(208, 151, 255, 0.96));
+      border-radius: 32px;
+      opacity: 0;
+    }
+    .title-transition.active {
+      display: flex;
+      animation: title-transition-fade 6000ms ease forwards;
+    }
+    .title-transition-text {
+      display: grid;
+      gap: 16px;
+      justify-items: center;
+      width: min(760px, calc(100% - 48px));
+      color: #ffffff;
+      text-shadow: 0 12px 30px rgba(72, 18, 116, 0.24);
+      transform: scale(1.08);
+    }
+    .title-transition.active .title-transition-text {
+      animation: title-zoom-out 1650ms cubic-bezier(0.22, 1, 0.36, 1) 3920ms forwards;
+    }
+    .title-transition-main {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      font-size: clamp(42px, 7vw, 82px);
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      line-height: 0.95;
+    }
+    .title-transition-subtitle {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0;
+      font-size: clamp(16px, 2.2vw, 24px);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      color: #5f3377;
+      background: rgba(255,255,255,0.94);
+      border-radius: 999px;
+      padding: 10px 18px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.92), 0 12px 24px rgba(72, 18, 116, 0.12);
+      opacity: 0;
+      transform: translateY(22px) scale(0.92);
+    }
+    .title-transition-subtitle-letter {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(18px) scale(0.82);
+    }
+    .title-transition-subtitle-space {
+      width: 0.34em;
+    }
+    .title-transition-letter {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(42px) scale(0.72);
+    }
+    .title-transition-space {
+      width: 0.38em;
+    }
+    .title-transition-break {
+      flex-basis: 100%;
+      height: 0;
+    }
+    .title-transition.active .title-transition-letter {
+      animation: title-letter-jump 320ms cubic-bezier(0.2, 0.9, 0.2, 1.18) forwards;
+    }
+    .title-transition.active .title-transition-subtitle {
+      animation: title-subtitle-pop 620ms cubic-bezier(0.2, 0.9, 0.2, 1.1) 1940ms forwards;
+    }
+    .title-transition.active .title-transition-subtitle-letter {
+      animation: title-subtitle-letter-jump 280ms cubic-bezier(0.2, 0.9, 0.2, 1.18) forwards;
+    }
+    .app.title-transitioning .topbar {
+      opacity: 0;
+      animation: topbar-reveal 900ms ease 4020ms both;
+    }
+    .app.title-transitioning #sceneIntro.active .intro-copy-card {
+      opacity: 0;
+      animation: intro-card-rise 950ms cubic-bezier(0.22, 1, 0.36, 1) 4140ms both;
+    }
+    .app.title-transitioning #sceneIntro.active .big-figure {
+      opacity: 0;
+      animation: intro-figure-reveal 900ms ease 4260ms both;
+    }
+    @keyframes title-transition-fade {
+      0% {
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      72% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+    @keyframes title-letter-jump {
+      0% {
+        opacity: 0;
+        transform: translateY(42px) scale(0.72);
+      }
+      65% {
+        opacity: 1;
+        transform: translateY(-10px) scale(1.08);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    @keyframes title-subtitle-pop {
+      0% {
+        opacity: 0;
+        transform: translateY(22px) scale(0.92);
+      }
+      70% {
+        opacity: 1;
+        transform: translateY(-4px) scale(1.03);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    @keyframes title-subtitle-letter-jump {
+      0% {
+        opacity: 0;
+        transform: translateY(18px) scale(0.82);
+      }
+      65% {
+        opacity: 1;
+        transform: translateY(-4px) scale(1.04);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    @keyframes title-zoom-out {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-180px, -220px) scale(0.34);
+      }
+    }
+    @keyframes topbar-reveal {
+      0% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.98);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    @keyframes intro-card-rise {
+      0% {
+        opacity: 0;
+        transform: translateY(72px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes intro-figure-reveal {
+      0% {
+        opacity: 0;
+        transform: translateY(18px) scale(0.97);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
     .badge {
       padding: 10px 16px;
       border-radius: 999px;
@@ -150,6 +342,17 @@
       text-align: center;
       z-index: 30;
       pointer-events: none;
+    }
+    .start-heading .cheat-btn {
+      pointer-events: auto;
+      justify-self: center;
+      min-width: 160px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.92);
+      color: #5f3377;
+      border: 1px solid rgba(157, 78, 221, 0.18);
+      box-shadow: 0 12px 24px rgba(91, 47, 133, 0.12);
     }
     .start-heading h1 {
       margin: 0;
@@ -303,6 +506,7 @@
     }
     .man { font-size: 140px; }
     .man img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .man img#introOliver { cursor: pointer; }
     .butt {
       padding: 0;
     }
@@ -720,12 +924,68 @@
       <div class="title">Butt Cleaning Mission✨</div>
       <div class="badge" id="statusBadge">Status: Standby</div>
     </div>
+    <div class="title-transition" id="titleTransition" aria-hidden="true">
+      <div class="title-transition-text">
+        <div class="title-transition-main">
+          <span class="title-transition-letter" style="animation-delay: 0ms;">B</span>
+          <span class="title-transition-letter" style="animation-delay: 60ms;">u</span>
+          <span class="title-transition-letter" style="animation-delay: 120ms;">t</span>
+          <span class="title-transition-letter" style="animation-delay: 180ms;">t</span>
+          <span class="title-transition-space"></span>
+          <span class="title-transition-letter" style="animation-delay: 380ms;">C</span>
+          <span class="title-transition-letter" style="animation-delay: 440ms;">l</span>
+          <span class="title-transition-letter" style="animation-delay: 500ms;">e</span>
+          <span class="title-transition-letter" style="animation-delay: 560ms;">a</span>
+          <span class="title-transition-letter" style="animation-delay: 620ms;">n</span>
+          <span class="title-transition-letter" style="animation-delay: 680ms;">i</span>
+          <span class="title-transition-letter" style="animation-delay: 740ms;">n</span>
+          <span class="title-transition-letter" style="animation-delay: 800ms;">g</span>
+          <span class="title-transition-break"></span>
+          <span class="title-transition-letter" style="animation-delay: 1000ms;">M</span>
+          <span class="title-transition-letter" style="animation-delay: 1060ms;">i</span>
+          <span class="title-transition-letter" style="animation-delay: 1120ms;">s</span>
+          <span class="title-transition-letter" style="animation-delay: 1180ms;">s</span>
+          <span class="title-transition-letter" style="animation-delay: 1240ms;">i</span>
+          <span class="title-transition-letter" style="animation-delay: 1300ms;">o</span>
+          <span class="title-transition-letter" style="animation-delay: 1360ms;">n</span>
+          <span class="title-transition-letter" style="animation-delay: 1420ms;">✨</span>
+        </div>
+        <span class="title-transition-subtitle">
+          <span class="title-transition-subtitle-letter" style="animation-delay: 1940ms;">S</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 2000ms;">p</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 2060ms;">e</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 2120ms;">c</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 2180ms;">i</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 2240ms;">a</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 2300ms;">l</span>
+          <span class="title-transition-subtitle-space"></span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 2500ms;">T</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 2560ms;">o</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 2620ms;">i</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 2680ms;">l</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 2740ms;">e</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 2800ms;">t</span>
+          <span class="title-transition-subtitle-space"></span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 3000ms;">O</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 3060ms;">p</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 3120ms;">e</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 3180ms;">r</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 3240ms;">a</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 3300ms;">t</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 3360ms;">i</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 3420ms;">o</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 3480ms;">n</span>
+          <span class="title-transition-subtitle-letter" style="animation-delay: 3540ms;">s</span>
+        </span>
+      </div>
+    </div>
 
     <section class="scene start-screen active" id="sceneStart">
       <div class="card start-card start-secret">
         <div class="start-heading">
           <h1>Find Oliver</h1>
           <p>Move the cards to discover him.</p>
+          <button class="cheat-btn" id="startCheatBtn" type="button">Cheat: Skip In</button>
         </div>
         <div class="start-weiju-gallery" aria-hidden="true">
           <img class="start-piece start-weiju weiju1" src="weiju1.webp" alt="" decoding="async">
@@ -743,7 +1003,7 @@
 
     <section class="scene" id="sceneIntro">
       <div class="hero">
-        <div class="card">
+        <div class="card intro-copy-card">
           <div class="badge" style="width:max-content;">Special Toilet Operations</div>
           <h2>Uh oh stinky.....<br>Oliver wants to go to the toilet 🚽</h2>
           <p class="sub">Should we send him to the toilet?</p>
@@ -753,7 +1013,6 @@
           </div>
         </div>
         <div class="big-figure">
-          <div class="speech">EMERGENCY!</div>
           <div class="man"><img src="Oliver_hehe.webp" alt="Boyfriend" id="introOliver" decoding="async"></div>
         </div>
       </div>
@@ -863,6 +1122,8 @@
     const introOliver = document.getElementById("introOliver");
     const introActions = document.getElementById("introActions");
     const startExperienceBtn = document.getElementById("startExperienceBtn");
+    const startCheatBtn = document.getElementById("startCheatBtn");
+    const titleTransition = document.getElementById("titleTransition");
     const goToPoopBtn = document.getElementById("goToPoop");
     const sayNoBtn = document.getElementById("sayNoBtn");
     const poopButton = document.getElementById("poopButton");
@@ -903,6 +1164,8 @@
     let lastWipeSoundTime = 0;
     let introOliverImageIndex = 0;
     let suppressStartClick = false;
+    let titleTransitionTimer = null;
+    let isTitleTransitionRunning = false;
 
     function showScene(name) {
       Object.values(scenes).forEach(scene => scene.classList.remove("active"));
@@ -935,6 +1198,13 @@
       if (progressAnimationFrame !== null) {
         window.cancelAnimationFrame(progressAnimationFrame);
         progressAnimationFrame = null;
+      }
+    }
+
+    function clearTitleTransitionTimer() {
+      if (titleTransitionTimer !== null) {
+        clearTimeout(titleTransitionTimer);
+        titleTransitionTimer = null;
       }
     }
 
@@ -1054,6 +1324,49 @@
 
     function updateIntroOliverImage() {
       introOliver.src = introOliverImages[introOliverImageIndex];
+    }
+
+    function cycleIntroOliverImage() {
+      if (introSaysNo) {
+        return;
+      }
+
+      introOliverImageIndex = (introOliverImageIndex + 1) % introOliverImages.length;
+      updateIntroOliverImage();
+    }
+
+    function isOliverCovered() {
+      const buttonRect = startExperienceBtn.getBoundingClientRect();
+      const buttonArea = buttonRect.width * buttonRect.height;
+
+      return startWeijus.some(piece => {
+        const pieceRect = piece.getBoundingClientRect();
+        const overlapWidth = Math.min(buttonRect.right, pieceRect.right) - Math.max(buttonRect.left, pieceRect.left);
+        const overlapHeight = Math.min(buttonRect.bottom, pieceRect.bottom) - Math.max(buttonRect.top, pieceRect.top);
+        const overlapArea = Math.max(0, overlapWidth) * Math.max(0, overlapHeight);
+
+        return overlapArea / buttonArea > 0.5;
+      });
+    }
+
+    function playIntroTitleTransition() {
+      if (isTitleTransitionRunning) {
+        return;
+      }
+
+      isTitleTransitionRunning = true;
+      clearTitleTransitionTimer();
+      showScene("intro");
+      setStatus("Emergency Meeting");
+      appShell.classList.add("title-transitioning");
+      titleTransition.classList.add("active");
+
+      titleTransitionTimer = window.setTimeout(() => {
+        titleTransition.classList.remove("active");
+        appShell.classList.remove("title-transitioning");
+        isTitleTransitionRunning = false;
+        titleTransitionTimer = null;
+      }, 6000);
     }
 
     function arrangeStartPile() {
@@ -1479,13 +1792,24 @@
     });
 
     startExperienceBtn.addEventListener("click", () => {
-      if (suppressStartClick) {
+      if (suppressStartClick || isTitleTransitionRunning) {
+        return;
+      }
+      if (isOliverCovered()) {
         return;
       }
 
       ensureBackgroundMusic();
-      showScene("intro");
-      setStatus("Emergency Meeting");
+      playIntroTitleTransition();
+    });
+
+    startCheatBtn.addEventListener("click", () => {
+      if (isTitleTransitionRunning) {
+        return;
+      }
+
+      ensureBackgroundMusic();
+      playIntroTitleTransition();
     });
 
     goToPoopBtn.addEventListener("click", () => {
@@ -1500,6 +1824,8 @@
       setIntroDecisionState(nextState);
       setStatus(nextState ? "Denied Toilet Access" : "Emergency Meeting");
     });
+
+    introOliver.addEventListener("click", cycleIntroOliverImage);
 
     poopButton.addEventListener("click", () => {
       if (!waitingForPoop) {
@@ -1592,6 +1918,10 @@
       }
 
       arrangeStartPile();
+      clearTitleTransitionTimer();
+      titleTransition.classList.remove("active");
+      appShell.classList.remove("title-transitioning");
+      isTitleTransitionRunning = false;
       showScene("start");
       setStatus("Standby");
     });
