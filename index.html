@@ -1613,6 +1613,9 @@
       appShell.classList.add("title-transitioning");
       titleTransition.classList.add("active");
 
+      introOliverImageIndex = 0;
+      updateIntroOliverImage();
+
       titleTransitionTimer = window.setTimeout(() => {
         titleTransition.classList.remove("active");
         appShell.classList.remove("title-transitioning");
@@ -1640,7 +1643,12 @@
 
     function setIntroDecisionState(isNo) {
       introSaysNo = isNo;
-      introOliver.src = isNo ? "Oliver_no.webp" : introOliverImages[introOliverImageIndex];
+      if (isNo) {
+        introOliver.src = "Oliver_no.webp";
+      } else {
+        introOliverImageIndex = (introOliverImageIndex + 1) % introOliverImages.length;
+        updateIntroOliverImage();
+      }
       sayNoBtn.textContent = isNo ? "Yes" : "No";
       sayNoBtn.className = isNo ? "toggle-yes" : "toggle-no";
       introActions.classList.toggle("no-active", isNo);
